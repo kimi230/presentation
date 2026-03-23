@@ -1407,8 +1407,9 @@ function startLLMTyping(){
   if(!out||!tokens)return;
   out.innerHTML='';tokens.innerHTML='';llmIdx=0;llmRunning=true;
   function typeNext(){
-    if(llmIdx>=llmTokens.length||!llmRunning){
-      document.getElementById('llm-cursor').style.display='none';
+    if(!llmRunning) return;
+    if(llmIdx>=llmTokens.length){
+      setTimeout(function(){ if(!llmRunning)return; out.innerHTML='';tokens.innerHTML='';llmIdx=0; typeNext(); },2000);
       return;
     }
     document.getElementById('llm-cursor').style.display='inline-block';
