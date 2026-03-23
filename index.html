@@ -629,6 +629,18 @@ p,li { font-size:clamp(.85rem,1.4vw,1.1rem); line-height:1.7; }
 .tool-poll-reset-btn { background:none; border:1px solid rgba(0,0,0,0.1); color:var(--text-dim); padding:.3rem .8rem; border-radius:8px; font-size:.7rem; cursor:pointer; font-family:inherit; margin-top:.3rem; transition:all .2s; }
 .tool-poll-reset-btn:hover { border-color:var(--teal); color:var(--teal); }
 
+/* AI settings slide */
+.settings-grid { display:flex; gap:1.2rem; margin-top:1.2rem; flex-wrap:nowrap; align-items:flex-start; }
+.settings-card { flex:1; min-width:0; background:#fff; border:1px solid var(--card-border); border-radius:14px; overflow:hidden; display:flex; flex-direction:column; align-items:center; }
+.settings-card img { width:100%; height:auto; object-fit:contain; border-radius:0 0 10px 10px; }
+.settings-card-label { display:flex; align-items:center; gap:.5rem; padding:.7rem 1rem; width:100%; font-size:.85rem; font-weight:700; color:var(--text-dark); }
+.settings-card-label img { width:24px; height:24px; border-radius:6px; flex-shrink:0; }
+.settings-highlight { display:inline-block; background:#FEF3C7; color:#92400E; font-size:.75rem; font-weight:700; padding:.15rem .5rem; border-radius:6px; margin-left:auto; }
+@media (max-width:900px) {
+  .settings-grid { flex-wrap:wrap; }
+  .settings-card { min-width:250px; }
+}
+
 /* Title slide QR */
 .title-qr { position:absolute; right:8vw; bottom:10vh; display:flex; flex-direction:column; align-items:center; text-align:center; }
 @media (max-width:768px) {
@@ -1145,6 +1157,26 @@ response = client.models.<span class="fn">generate_content</span>(
 <!-- ========== 21-1. 공용 AI 서비스 데이터 흐름 ========== -->
 <section class="slide img-slide"><img src="assets/ppt-slide25.png" alt="공용 AI 서비스 이용 시 데이터 흐름"></section>
 
+<!-- ========== AI 학습 데이터 제공 설정 끄기 ========== -->
+<section class="slide light">
+  <h2 class="a d1"><span class="teal">모델 학습</span> 데이터 제공 설정 끄기</h2>
+  <p class="a d2" style="color:var(--text-sub)">AI 서비스 사용 시, 내 대화 내용이 모델 학습에 사용되지 않도록 설정을 꺼두세요.</p>
+  <div class="settings-grid a d3">
+    <div class="settings-card">
+      <div class="settings-card-label"><img src="assets/logo-chatgpt.png" alt="ChatGPT">ChatGPT<span class="settings-highlight">꺼짐</span></div>
+      <img src="assets/settings-chatgpt.png" alt="ChatGPT 데이터 제어 설정">
+    </div>
+    <div class="settings-card">
+      <div class="settings-card-label"><img src="assets/logo-claude.png" alt="Claude">Claude<span class="settings-highlight">꺼짐</span></div>
+      <img src="assets/settings-claude.png" alt="Claude 개인정보보호 설정">
+    </div>
+    <div class="settings-card">
+      <div class="settings-card-label"><img src="assets/logo-gemini.png" alt="Gemini">Gemini<span class="settings-highlight">사용 안함</span></div>
+      <img src="assets/settings-gemini.png" alt="Gemini 앱 활동 설정">
+    </div>
+  </div>
+</section>
+
 <!-- ========== AI 결과물의 저작권과 책임 ========== -->
 <section class="slide img-slide"><img src="assets/ppt-copyright.png" alt="AI 결과물의 저작권과 책임"></section>
 
@@ -1569,20 +1601,19 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
-// Init voting (presenter only) — Firebase
+// Init (presenter only)
 (function initVoting() {
   if (isViewer) return;
+  // QR is independent of Firebase — generate immediately
+  loadSharedQR();
+  // Firebase connection
   var initialized = false;
   db.ref('.info/connected').on('value', function(snap) {
     if (snap.val() === true && !initialized) {
       initialized = true;
-      loadSharedQR();
       connectFirebaseListeners();
       setActiveQuiz();
       loadQuestions();
-    } else if (snap.val() !== true) {
-      var titleQR = document.getElementById('titleQR');
-      if (titleQR && !initialized) titleQR.querySelector('p').textContent = '⚠️ Firebase 연결 중...';
     }
   });
 })();
