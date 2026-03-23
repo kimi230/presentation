@@ -374,13 +374,25 @@ toolVotesRef.on('value', function(snap) {
 });
 
 // Sync iframe slide via postMessage from presenter's currentSlide
+var _pendingSlide = null;
+var _frameReady = false;
+
+document.getElementById('presFrame').addEventListener('load', function() {
+  _frameReady = true;
+  if (_pendingSlide !== null) {
+    this.contentWindow.postMessage({ type: 'goToSlide', slideIndex: _pendingSlide }, '*');
+    _pendingSlide = null;
+  }
+});
+
 currentSlideRef.on('value', function(snap) {
   var slideIndex = snap.val();
-  if (slideIndex !== null) {
-    var frame = document.getElementById('presFrame');
-    if (frame && frame.contentWindow) {
-      frame.contentWindow.postMessage({ type: 'goToSlide', slideIndex: slideIndex }, '*');
-    }
+  if (slideIndex === null) return;
+  var frame = document.getElementById('presFrame');
+  if (_frameReady && frame && frame.contentWindow) {
+    frame.contentWindow.postMessage({ type: 'goToSlide', slideIndex: slideIndex }, '*');
+  } else {
+    _pendingSlide = slideIndex;
   }
 });
 </script>
