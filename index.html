@@ -740,6 +740,7 @@ p,li { font-size:clamp(.85rem,1.4vw,1.1rem); line-height:1.7; }
         <span class="quiz-bar-count" id="q1cntB">0</span>
       </div>
       <p class="quiz-vote-total" id="q1total"></p>
+      <button class="quiz-reset-btn" onclick="resetQuiz(1)">초기화</button>
     </div>
   </div>
   <div class="quiz-answer a d4">
@@ -780,6 +781,7 @@ p,li { font-size:clamp(.85rem,1.4vw,1.1rem); line-height:1.7; }
         <span class="quiz-bar-count" id="q2cntB">0</span>
       </div>
       <p class="quiz-vote-total" id="q2total"></p>
+      <button class="quiz-reset-btn" onclick="resetQuiz(2)">초기화</button>
     </div>
   </div>
   <div class="quiz-answer a d4">
@@ -826,6 +828,7 @@ p,li { font-size:clamp(.85rem,1.4vw,1.1rem); line-height:1.7; }
         <span class="quiz-bar-count" id="q3cntB">0</span>
       </div>
       <p class="quiz-vote-total" id="q3total"></p>
+      <button class="quiz-reset-btn" onclick="resetQuiz(3)">초기화</button>
     </div>
   </div>
   <div class="quiz-answer a d4">
@@ -1058,22 +1061,15 @@ response = client.models.<span class="fn">generate_content</span>(
   </div>
   <span class="slide-num">17-1</span>
 </section>
-<!-- ========== 16. 이렇게 시키면 원하는 결과 (light) ========== -->
+<!-- ========== 16. 건설업 적응 (light) ========== -->
 <section class="slide light center">
-  <h2 class="a d1 teal bold">이렇게 시키면 원하는 결과</h2>
-  <div class="a d2 mt-1" style="max-width:850px;display:flex;flex-direction:column;gap:1rem;text-align:left">
-    <div style="background:#f0fdfa;border:1px solid #ccfbf1;border-left:4px solid var(--teal);border-radius:12px;padding:1.2rem 1.5rem">
-      <span style="font-size:.7rem;color:var(--teal);font-weight:700;letter-spacing:.05em">구체적 + 맥락 + 기준</span>
-      <p style="font-size:1.25rem;margin-top:.4rem">"3월 <strong>A공구 골조공사</strong> 공정 현황을 <strong>공종별 진행률·지연 사유</strong> 포함해서, <strong>발주처 보고용 A4 1장 표</strong>로 요약해 줘"</p>
-    </div>
-    <div style="background:#f0fdfa;border:1px solid #ccfbf1;border-left:4px solid var(--teal);border-radius:12px;padding:1.2rem 1.5rem">
-      <span style="font-size:.7rem;color:var(--teal);font-weight:700;letter-spacing:.05em">구체적 + 맥락 + 기준</span>
-      <p style="font-size:1.25rem;margin-top:.4rem">"<strong>해외 파트너사 제출용</strong>으로, 이 하도급 계약서의 <strong>공사범위 조항</strong>을 건설 전문 용어 기준으로 한영 번역하되, <strong>원문 대조 가능한 2단 표</strong>로 정리해 줘"</p>
-    </div>
-    <div style="background:#f0fdfa;border:1px solid #ccfbf1;border-left:4px solid var(--teal);border-radius:12px;padding:1.2rem 1.5rem">
-      <span style="font-size:.7rem;color:var(--teal);font-weight:700;letter-spacing:.05em">구체적 + 맥락 + 기준</span>
-      <p style="font-size:1.25rem;margin-top:.4rem">"<strong>신규 입장 작업자</strong> 대상, <strong>고소작업(비계·사다리)</strong> 안전수칙 10개를 쉬운 말로 정리해 줘. <strong>현장 게시용 A4 1장, 번호 목록</strong> 형식으로"</p>
-    </div>
+  <h2 class="a d1">건설업, AI 시대에<br>더 빠르게 적응할 수 있다</h2>
+  <div class="card a d2 mt-1" style="max-width:750px;text-align:left">
+    <p style="line-height:2.2;font-size:1.5rem">
+      AI에게 지시할 때는 사람에게 지시하듯<br><br>
+      <strong class="teal">명확한 소통 능력을 갖춘 건설인이야 말로 AI에 적합한 인재입니다.</strong><br><br>
+      <span style="color:var(--text-sub)">결국 사람과 사람으로 일하는 것이 건설업의 본질</span>
+    </p>
   </div>
   <span class="slide-num">18</span>
 </section>
