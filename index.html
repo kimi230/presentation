@@ -1,0 +1,1623 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>AI 이해와 업무 활용</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* PPT exact colors */
+  --bg-light: #F0FDFA;
+  --bg-dark: #0F1B2D;
+  --text-dark: #1E293B;
+  --text-sub: #334155;
+  --text-dim: #94A3B8;
+  --teal: #0D9488;
+  --teal-light: #5EEAD4;
+  --amber: #F59E0B;
+  --white: #FFFFFF;
+  --card-border: rgba(30,41,59,0.1);
+  --card-border-dark: rgba(255,255,255,0.1);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { width:100%; height:100%; overflow:hidden; font-family:'Noto Sans KR',-apple-system,sans-serif; -webkit-font-smoothing:antialiased; }
+
+.slide {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column; justify-content:center;
+  padding:5vh 8vw;
+  opacity:0; transform:translateX(30px);
+  transition:opacity .45s ease, transform .45s ease;
+  pointer-events:none; overflow-y:auto;
+}
+.slide.active { opacity:1; transform:translateX(0); pointer-events:auto; }
+.slide.prev { opacity:0; transform:translateX(-30px); }
+
+/* === LIGHT THEME (default) === */
+.slide.light { background:var(--bg-light); color:var(--text-dark); }
+.slide.light h1,.slide.light h2 { color:var(--text-dark); }
+.slide.light h3,.slide.light p,.slide.light li { color:var(--text-sub); }
+.slide.light .dim { color:var(--text-dim); }
+.slide.light .card { background:#fff; border:1px solid var(--card-border); }
+
+/* === FULLSCREEN IMAGE SLIDE === */
+.slide.img-slide {
+  padding:0; background:var(--bg-light);
+  justify-content:center; align-items:center;
+}
+.slide.img-slide img { width:100%; height:100%; object-fit:contain; }
+
+/* Typography */
+h1 { font-size:clamp(2rem,5vw,3.5rem); font-weight:900; line-height:1.25; margin-bottom:.4em; letter-spacing:-.02em; }
+h2 { font-size:clamp(1.4rem,3.5vw,2.5rem); font-weight:700; line-height:1.3; margin-bottom:.4em; }
+h3 { font-size:clamp(1rem,2vw,1.4rem); font-weight:500; line-height:1.5; }
+p,li { font-size:clamp(.85rem,1.4vw,1.1rem); line-height:1.7; }
+
+.teal { color:var(--teal); }
+.teal-light { color:var(--teal-light); }
+.amber { color:var(--amber); }
+.white { color:var(--white); }
+.bold { font-weight:700; }
+
+.label { font-size:clamp(.65rem,.9vw,.8rem); text-transform:uppercase; letter-spacing:.15em; margin-bottom:1em; font-weight:500; }
+.slide.light .label { color:var(--text-dim); }
+
+/* Layout */
+.center { text-align:center; align-items:center; }
+.row { display:flex; gap:2rem; align-items:flex-start; flex-wrap:wrap; }
+.col { flex:1; min-width:220px; }
+.mt-1 { margin-top:1rem; } .mt-2 { margin-top:2rem; } .mt-3 { margin-top:3rem; }
+
+/* Cards */
+.card { border-radius:16px; padding:2rem; }
+.card-sm { border-radius:12px; padding:1.5rem; text-align:center; }
+
+/* Logo */
+.logo { width:42px; height:42px; border-radius:10px; object-fit:contain; }
+.logo-row { display:flex; align-items:center; gap:.5rem; margin-bottom:1.5rem; }
+
+/* AI tool logos */
+.tool-grid { display:flex; gap:1.5rem; flex-wrap:wrap; margin-top:2rem; }
+.tool-item { display:flex; flex-direction:column; align-items:center; gap:.5rem; }
+.tool-item img { width:50px; height:50px; border-radius:12px; }
+.tool-item span { font-size:.85rem; font-weight:600; }
+
+/* Icon circles - teal themed */
+.icon-img { width:40px; height:40px; border-radius:10px; object-fit:contain; }
+
+/* Code block */
+.code-block { background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:1.2rem; font-family:'JetBrains Mono',monospace; font-size:clamp(.7rem,1.1vw,.85rem); line-height:1.6; color:var(--text-dark); overflow-x:auto; }
+.code-block .fname { color:var(--text-dim); font-size:.75em; margin-bottom:.5rem; }
+.kw { color:#be185d; } .str { color:#0d9488; } .fn { color:#7c3aed; } .cmt { color:#94a3b8; }
+
+/* Compare table */
+.compare { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-top:1.5rem; }
+.compare-col { border-radius:12px; padding:1.5rem; }
+.slide.light .compare-col { background:#fff; border:1px solid var(--card-border); }
+.compare-col h4 { font-size:1rem; font-weight:700; margin-bottom:.8rem; }
+.compare-col ul { list-style:none; padding:0; }
+.compare-col ul li { padding:.35rem 0; font-size:.88rem; border-bottom:1px solid rgba(0,0,0,0.05); }
+.compare-col ul li:last-child { border:none; }
+
+/* Numbered list */
+.num-list { list-style:none; padding:0; }
+.num-list li { display:flex; align-items:flex-start; gap:1rem; padding:1rem 0; border-bottom:1px solid rgba(0,0,0,0.06); }
+.num-list li:last-child { border:none; }
+.num { font-size:1.2rem; font-weight:900; min-width:2.2rem; }
+.num-list .content h4 { font-size:1.05rem; font-weight:700; color:inherit; margin-bottom:.2rem; }
+.slide.light .num-list .content h4 { color:var(--text-dark); }
+
+/* Features grid */
+.features { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1.5rem; margin-top:2rem; }
+.feature { text-align:center; padding:1.5rem; border-radius:14px; }
+.slide.light .feature { background:#fff; border:1px solid var(--card-border); }
+.feature h4 { font-size:.95rem; font-weight:700; margin-top:.8rem; margin-bottom:.4rem; }
+.feature p { font-size:.82rem; }
+
+/* Communication table */
+.comm-row { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; margin-bottom:.6rem; }
+.comm-cell { padding:.8rem 1rem; border-radius:10px; font-size:.85rem; line-height:1.5; }
+.comm-cell.bad { background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.15); }
+.comm-cell.good { background:rgba(13,148,136,0.06); border:1px solid rgba(13,148,136,0.2); color:var(--text-dark); }
+
+/* Flow diagram */
+.flow { display:flex; align-items:center; gap:.6rem; flex-wrap:wrap; margin-top:1rem; }
+.flow-step { border-radius:10px; padding:.8rem 1rem; font-size:.82rem; text-align:center; font-weight:500; }
+.slide.light .flow-step { background:#fff; border:1px solid var(--card-border); }
+.flow-arrow { color:var(--teal); font-size:1.1rem; }
+
+/* Flow vertical (보이지 않는 곳 슬라이드) */
+.flow-vertical { display:flex; align-items:center; gap:.6rem; flex-wrap:wrap; margin-top:1rem; }
+.flow-card { display:flex; align-items:center; gap:.8rem; border-radius:12px; padding:.9rem 1.2rem; font-size:.85rem; background:#fff; border:1px solid var(--card-border); }
+.flow-card.highlight { border-color:var(--teal); background:rgba(13,148,136,0.04); }
+.flow-arrow-down { color:var(--teal); font-size:1.1rem; }
+
+/* Product card */
+.product-card { border-radius:16px; padding:2rem; margin-top:1rem; }
+.slide.light .product-card { background:#fff; border:1px solid var(--card-border); }
+.product-card h2 { margin-bottom:.3rem; }
+.product-card .desc { font-size:.9rem; margin-bottom:1rem; }
+
+.tag { display:inline-block; padding:.2rem .7rem; border-radius:20px; font-size:.72rem; font-weight:600; margin-right:.4rem; }
+.tag.teal { background:rgba(13,148,136,0.12); color:var(--teal); }
+.tag.blue { background:rgba(59,130,246,0.12); color:#3b82f6; }
+.tag.amber { background:rgba(245,158,11,0.12); color:var(--amber); }
+
+/* Product screenshot */
+.product-img { width:100%; max-width:600px; border-radius:12px; margin-top:1rem; border:1px solid rgba(0,0,0,0.1); }
+
+/* Before/After */
+.before-after { border-radius:12px; padding:1.5rem; }
+.slide.light .before-after { background:#fff; border:1px solid var(--card-border); }
+.ba-label { font-size:.7rem; text-transform:uppercase; letter-spacing:.1em; font-weight:600; }
+.ba-before { padding-bottom:.8rem; border-bottom:2px solid var(--teal); font-size:1.05rem; }
+.ba-after { padding-top:.8rem; border-left:3px solid var(--teal-light); padding-left:1rem; font-size:1.2rem; font-weight:700; color:var(--teal); }
+
+/* Big slide number watermark */
+.big-num { position:absolute; right:8vw; bottom:8vh; font-size:clamp(5rem,14vw,11rem); font-weight:900; line-height:1; user-select:none; }
+.slide.light .big-num { color:rgba(30,41,59,0.04); }
+
+/* Slide number badge */
+.slide-num { position:absolute; bottom:3vh; left:8vw; font-size:.75rem; font-family:'JetBrains Mono',monospace; }
+.slide.light .slide-num { color:var(--text-dim); }
+
+/* Progress */
+.progress-bar { position:fixed; top:0; left:0; height:3px; background:linear-gradient(90deg,var(--teal),var(--teal-light)); transition:width .4s ease; z-index:100; }
+
+/* Counter */
+.slide-counter { position:fixed; bottom:2vh; right:4vw; font-size:.75rem; color:var(--text-dim); z-index:100; font-family:'JetBrains Mono',monospace; }
+
+/* Nav */
+.nav-controls { position:fixed; bottom:2vh; left:50%; transform:translateX(-50%); display:flex; gap:.4rem; z-index:100; }
+.nav-btn { background:rgba(13,148,136,0.1); border:1px solid rgba(13,148,136,0.2); color:var(--teal); padding:.45rem 1rem; border-radius:8px; font-size:.82rem; cursor:pointer; font-family:inherit; transition:background .2s; }
+.nav-btn:hover { background:rgba(13,148,136,0.2); }
+
+/* QR */
+.qr-btn { position:fixed; top:2vh; right:4vw; background:rgba(13,148,136,0.08); border:1px solid rgba(13,148,136,0.2); color:var(--teal); padding:.4rem .9rem; border-radius:8px; font-size:.75rem; cursor:pointer; z-index:100; font-family:inherit; transition:background .2s; }
+.qr-btn:hover { background:rgba(13,148,136,0.18); }
+.qr-overlay { position:fixed; inset:0; background:rgba(240,253,250,0.95); display:none; align-items:center; justify-content:center; flex-direction:column; gap:1.5rem; z-index:1000; backdrop-filter:blur(10px); }
+.qr-overlay.show { display:flex; }
+.qr-overlay canvas { border-radius:16px; padding:20px; background:#fff; box-shadow:0 4px 24px rgba(0,0,0,0.1); }
+.qr-overlay p { color:var(--text-dark); font-size:1.1rem; }
+
+/* Reveal answer */
+.reveal-trigger { cursor:pointer; }
+.reveal-target { max-height:0; overflow:hidden; transition:max-height .5s ease, opacity .4s ease; opacity:0; }
+.reveal-target.revealed { max-height:200px; opacity:1; }
+
+/* Answer box */
+.answer-box { border-radius:12px; padding:1.2rem 1.5rem; margin-top:1rem; cursor:pointer; }
+.slide.light .answer-box { background:rgba(13,148,136,0.06); border:1px solid rgba(13,148,136,0.15); }
+.answer-box .hint { font-size:.8rem; color:var(--teal); }
+.answer-box h4 { color:var(--teal); font-weight:700; font-size:1rem; }
+.answer-box p { font-size:.88rem; margin-top:.2rem; }
+
+/* Agenda */
+.agenda-item { display:flex; align-items:center; gap:.8rem; padding:.55rem 0; }
+.agenda-time { font-size:.85rem; font-weight:700; min-width:2.5rem; text-align:right; }
+.agenda-text { font-size:.95rem; font-weight:500; }
+
+/* Poll */
+.poll-row { display:flex; align-items:center; gap:.8rem; margin-bottom:.7rem; }
+.poll-label { min-width:3rem; font-weight:700; font-size:.9rem; }
+.poll-bar-bg { flex:1; height:10px; background:rgba(0,0,0,0.06); border-radius:5px; overflow:hidden; }
+.poll-bar { height:100%; border-radius:5px; transition:width 1.5s ease; width:0; }
+.poll-bar.teal { background:linear-gradient(90deg,var(--teal),var(--teal-light)); }
+.poll-bar.blue { background:linear-gradient(90deg,#3b82f6,#93c5fd); }
+.poll-val { min-width:4rem; font-size:.85rem; }
+
+/* Full-width images */
+.full-img { width:100%; max-width:900px; border-radius:12px; display:block; margin:0 auto; }
+.compare-imgs { display:flex; gap:1rem; justify-content:center; align-items:flex-start; flex-wrap:wrap; margin-top:1.5rem; }
+.compare-imgs .full-img { width:48%; max-width:440px; border:1px solid var(--card-border); }
+
+/* === DESKTOP PPT MODE - 16:9 === */
+@media (min-width:769px) {
+  html {
+    background:#0c0c1d;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  body {
+    width:min(100vw, 177.78vh) !important;
+    height:min(100vh, 56.25vw) !important;
+    position:relative !important;
+    border-radius:8px;
+    box-shadow:0 20px 80px rgba(0,0,0,0.5);
+    overflow:hidden;
+  }
+
+  /* Fixed → Absolute for 16:9 containment */
+  .progress-bar { position:absolute; }
+  .slide-counter { position:absolute; }
+  .nav-controls { position:absolute; }
+  .qr-btn { position:absolute; }
+  .qr-overlay { position:absolute; }
+
+  /* PPT-scale typography - BIG */
+  h1 { font-size:clamp(3.5rem,6.5vw,6rem); font-weight:900; }
+  h2 { font-size:clamp(2.8rem,5vw,4.5rem); }
+  h3 { font-size:clamp(1.5rem,2.8vw,2.4rem); }
+  p,li { font-size:clamp(1.2rem,1.8vw,1.7rem); line-height:1.75; }
+  .label { font-size:clamp(.9rem,1.2vw,1.15rem); letter-spacing:.18em; }
+  .dim { font-size:clamp(1.1rem,1.6vw,1.5rem); }
+
+  /* Safe centering via pseudo-element spacers */
+  .slide { padding:5vh 8vw; justify-content:flex-start; }
+  .slide::before, .slide::after { content:''; flex:1; }
+  .slide.img-slide { padding:3vh 5vw; }
+  .slide.img-slide::before, .slide.img-slide::after { display:none; }
+  .slide.img-slide img { width:auto; height:auto; max-width:85%; max-height:80vh; }
+
+  /* Larger cards & elements */
+  .card { padding:2.5rem; border-radius:18px; }
+  .logo { width:64px; height:64px; border-radius:14px; }
+  .tool-item img { width:80px; height:80px; border-radius:16px; }
+  .tool-item span { font-size:1.15rem; }
+  .tool-grid { gap:2.5rem; margin-top:2.5rem; }
+  .icon-img { width:56px; height:56px; }
+
+  /* Features grid */
+  .features { gap:2rem; margin-top:2.5rem; }
+  .feature { padding:2rem; border-radius:16px; }
+  .feature h4 { font-size:1.3rem; }
+  .feature p { font-size:1.1rem; }
+  .feature .icon-img { width:48px; height:48px; }
+
+  /* Compare */
+  .compare { gap:2rem; margin-top:2rem; }
+  .compare-col { padding:2rem; border-radius:14px; }
+  .compare-col h4 { font-size:1.5rem; }
+  .compare-col ul li { font-size:1.15rem; padding:.5rem 0; }
+
+  /* Communication table */
+  .comm-cell { padding:1.1rem 1.5rem; font-size:1.1rem; border-radius:12px; }
+
+  /* Flow */
+  .flow-step { padding:1.1rem 1.5rem; font-size:1.05rem; border-radius:12px; }
+  .flow-card { padding:1.2rem 1.8rem; border-radius:14px; font-size:1.05rem; }
+
+  /* Before/After */
+  .ba-before { font-size:1.3rem; }
+  .ba-after { font-size:1.6rem; }
+
+  /* Code block */
+  .code-block { padding:1.5rem; font-size:clamp(.85rem,1.2vw,1rem); border-radius:14px; }
+
+  /* Product images */
+  .product-img { max-width:800px; max-height:50vh; object-fit:contain; border-radius:14px; }
+
+  /* Big watermark */
+  .big-num { font-size:clamp(6rem,15vw,13rem); }
+
+  /* Slide number */
+  .slide-num { font-size:.95rem; }
+
+  /* Nav controls */
+  .nav-btn { padding:.55rem 1.4rem; font-size:.95rem; border-radius:10px; }
+
+  /* Full images */
+  .full-img { max-width:1100px; }
+
+  /* AI 비교 그래프 - 크게 */
+  #ai-compare-slide .compare-imgs { gap:3rem; margin-top:0; align-items:center; flex-wrap:nowrap; }
+  #ai-compare-slide .compare-imgs .full-img { width:50%; max-width:none; }
+
+  /* 바로답 AI 스크린샷 - 크게 */
+  #barodap-features-slide .compare-imgs { gap:2rem; margin-top:.5rem; align-items:flex-start; flex-wrap:nowrap; }
+  #barodap-features-slide .compare-imgs .full-img { width:50%; max-width:none; max-height:75vh; object-fit:contain; }
+  #barodap-features-slide h2 { margin-bottom:0; }
+
+  /* Tags */
+  .tag { font-size:.9rem; padding:.3rem 1rem; }
+
+  /* Quiz - much bigger */
+  .quiz-title { font-size:clamp(2.5rem,5vw,4rem); }
+  .quiz-card { min-width:320px; max-width:600px; }
+  .quiz-card img { height:420px; }
+  .quiz-card .code-block { height:420px; font-size:clamp(.8rem,1.1vw,.95rem); }
+  .novel-block { height:420px; padding:2.5rem 3rem; }
+  .novel-block .novel-text { font-size:clamp(.95rem,1.15vw,1.05rem); }
+  .novel-block .novel-first { font-size:clamp(1.05rem,1.3vw,1.15rem); }
+  .quiz-card .quiz-label { font-size:1.4rem; padding:4px 14px; }
+  .quiz-answer-btn { padding:1rem 3rem; font-size:1.2rem; border-radius:14px; }
+  .quiz-answer-box { padding:1.5rem 2.5rem; }
+  .quiz-answer-box h4 { font-size:1.3rem; }
+  .quiz-answer-box p { font-size:1.1rem; }
+  .quiz-audio-card { min-width:300px; max-width:500px; padding:2.5rem; min-height:260px; }
+  .quiz-audio-card .quiz-label { font-size:1.6rem; }
+  .quiz-audio-card .voice-desc { font-size:1rem; }
+
+  /* Video embeds */
+  .slide video { max-height:85vh; }
+  .slide iframe { max-height:85vh; }
+
+  /* Numbered list */
+  .num { font-size:1.6rem; }
+  .num-list .content h4 { font-size:1.3rem; }
+  .num-list li { padding:1.2rem 0; }
+
+  /* Poll bars */
+  .poll-label { font-size:1.1rem; }
+  .poll-val { font-size:1.05rem; }
+
+  /* Answer box */
+  .answer-box { padding:1.5rem 2rem; border-radius:14px; }
+  .answer-box h4 { font-size:1.25rem; }
+  .answer-box p { font-size:1.1rem; }
+
+  /* Logo row */
+  .logo-row { margin-bottom:2rem; }
+}
+
+/* Responsive - Tablet */
+@media (max-width:768px) {
+  .slide { padding:4vh 6vw; }
+  .row { flex-direction:column; gap:1rem; }
+  .col { min-width:unset; }
+  .compare { grid-template-columns:1fr; }
+  .comm-row { grid-template-columns:1fr; }
+  .features { grid-template-columns:1fr; }
+  .big-num { font-size:4rem; }
+  .tool-grid { gap:1rem; }
+  .full-img { max-width:100%; width:100%; }
+  .compare-imgs { flex-direction:column; align-items:center; gap:.8rem; }
+  .compare-imgs .full-img { width:100%; max-width:100%; }
+}
+
+/* Responsive - Mobile */
+@media (max-width:480px) {
+  /* Base slide layout */
+  .slide { padding:3vh 5vw 10vh; justify-content:flex-start; padding-top:5vh; }
+  .slide.center { justify-content:center; padding-top:3vh; }
+  .slide.img-slide { padding:0 5vw 8vh; justify-content:center; align-items:center; }
+  .slide.img-slide img { object-fit:contain; width:100%; height:auto; max-height:80vh; }
+
+  /* Typography - tighter for mobile */
+  h1 { font-size:clamp(1.6rem,8vw,2.4rem); margin-bottom:.3em; line-height:1.2; }
+  h2 { font-size:clamp(1.2rem,6vw,1.8rem); margin-bottom:.3em; line-height:1.25; }
+  h3 { font-size:clamp(.88rem,3.5vw,1.1rem); line-height:1.45; }
+  p,li { font-size:clamp(.82rem,3vw,1rem); line-height:1.6; }
+  .label { font-size:.7rem; margin-bottom:.7em; }
+
+  /* Cards - compact */
+  .card { padding:1.2rem; border-radius:12px; }
+  .card-sm { padding:1rem; border-radius:10px; }
+
+  /* Title slide - centered on mobile */
+  #title-slide { justify-content:center; align-items:center; text-align:center; padding:3vh 8vw; }
+  #title-slide .logo-row { justify-content:center; }
+
+  /* AlphaGo vs GPT slide - compact on mobile */
+  #alphago-slide { justify-content:center; }
+  #alphago-slide .compare { gap:.5rem !important; margin-top:.5rem !important; }
+  #alphago-slide .compare-col { padding:.8rem !important; }
+  #alphago-slide .compare-col img { width:60px !important; height:60px !important; max-width:60px !important; border-radius:10px !important; margin-bottom:.4rem !important; }
+  #alphago-slide .compare-col h4 { font-size:.85rem; margin-bottom:.3rem; }
+  #alphago-slide .compare-col ul li { font-size:.78rem; padding:.15rem 0; }
+  #alphago-slide .a.d4 { margin-top:.6rem !important; }
+
+  /* Predict slide (06) - vertical center */
+  #predict-slide { justify-content:center; }
+  #predict-slide .compare { grid-template-columns:1fr 1fr !important; gap:.6rem !important; margin-top:.8rem; }
+  #predict-slide .card { padding:1rem !important; }
+  #predict-slide .card h4 { font-size:.82rem; }
+  #predict-slide .card p { font-size:.72rem; }
+  #predict-slide .card div[style*="font-size:3rem"] { font-size:1.8rem !important; margin:.2rem 0 !important; }
+  #predict-slide .card div[style*="font-size:.85rem"] { font-size:.7rem !important; padding:.4rem !important; }
+  #predict-slide .a.d4 { padding:.5rem 1rem !important; margin-top:.6rem !important; }
+  #predict-slide .a.d4 p { font-size:.78rem; }
+
+  /* Behind-the-scenes slide - center vertically */
+  #behind-slide { justify-content:center; }
+  #behind-slide .flow-vertical { margin-top:.8rem !important; }
+
+  /* AlphaGo history slide - center vertically */
+  #alphago-history-slide { justify-content:center; align-items:center; text-align:center; }
+  #alphago-history-slide .row { margin-top:.5rem; }
+
+  /* Logo */
+  .logo { width:34px; height:34px; border-radius:8px; }
+  .logo-row { margin-bottom:1rem; }
+
+  /* AI 써보셨나요 slide - center on mobile */
+  #ai-tools-slide { justify-content:center; align-items:center; text-align:center; }
+
+  /* 바로답 AI slide - center on mobile */
+  #barodap-slide { justify-content:center; align-items:center; text-align:center; }
+  #barodap-slide .a.d1 div { justify-content:center; }
+  #barodap-slide .product-img { max-width:100% !important; }
+
+  /* AI tool grid - 3 columns nicely */
+  .tool-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:.8rem; margin-top:1.2rem; justify-items:center; }
+  .tool-item img { width:42px; height:42px; border-radius:10px; }
+  .tool-item span { font-size:.78rem; }
+
+  /* Icon images */
+  .icon-img { width:34px; height:34px; }
+
+  /* Features grid - 2 columns on mobile */
+  .features { grid-template-columns:1fr 1fr; gap:.8rem; margin-top:1.2rem; }
+  .feature { padding:1rem .8rem; border-radius:10px; }
+  .feature h4 { font-size:.85rem; margin-top:.5rem; margin-bottom:.2rem; }
+  .feature p { font-size:.75rem; line-height:1.4; }
+  .feature .icon-img { width:30px; height:30px; }
+
+  /* Compare columns */
+  .compare { gap:.8rem; margin-top:1rem; }
+  .compare-col { padding:1rem; border-radius:10px; }
+  .compare-col h4 { font-size:.92rem; margin-bottom:.5rem; }
+  .compare-col ul li { font-size:.82rem; padding:.25rem 0; }
+
+  /* Communication table */
+  .comm-row { gap:.5rem; margin-bottom:.4rem; }
+  .comm-cell { padding:.6rem .8rem; font-size:.78rem; border-radius:8px; line-height:1.4; }
+
+  /* Flow diagram - stack vertically */
+  .flow { flex-direction:column; align-items:stretch; gap:.5rem; margin-top:.8rem; }
+  .flow-step { display:flex; align-items:center; gap:.6rem; text-align:left; padding:.7rem .9rem; border-radius:8px; font-size:.8rem; }
+  .flow-arrow { transform:rotate(90deg); font-size:.9rem; text-align:center; margin:-.2rem 0; }
+
+  /* Flow vertical (보이지 않는 곳) */
+  .flow-vertical { flex-direction:column; align-items:stretch; gap:.4rem; }
+  .flow-card { padding:.8rem 1rem; border-radius:10px; gap:.7rem; }
+  .flow-card .icon-img { width:32px; height:32px; }
+  .flow-arrow-down { text-align:center; font-size:.9rem; margin:-.1rem 0; }
+
+  /* Product cards & images */
+  .product-card { padding:1.2rem; margin-top:.8rem; border-radius:12px; }
+  .product-card .desc { font-size:.82rem; margin-bottom:.8rem; }
+  .product-img { border-radius:10px; max-width:100%; margin-top:.6rem; }
+
+  /* Tags */
+  .tag { font-size:.68rem; padding:.15rem .6rem; margin-right:.3rem; margin-bottom:.3rem; }
+
+  /* Before/After */
+  .before-after { padding:1rem; border-radius:10px; }
+  .ba-before { font-size:.92rem; }
+  .ba-after { font-size:1rem; }
+
+  /* Code block */
+  .code-block { padding:.8rem; font-size:.72rem; border-radius:8px; }
+
+  /* Answer box */
+  .answer-box { padding:1rem; border-radius:10px; }
+  .answer-box h4 { font-size:.92rem; }
+
+  /* Numbered list */
+  .num-list li { gap:.6rem; padding:.7rem 0; }
+  .num { font-size:1rem; min-width:1.8rem; }
+  .num-list .content h4 { font-size:.92rem; }
+
+  /* Agenda */
+  .agenda-item { padding:.4rem 0; gap:.6rem; }
+  .agenda-time { font-size:.8rem; min-width:2rem; }
+  .agenda-text { font-size:.88rem; }
+
+  /* Margins reduced */
+  .mt-1 { margin-top:.6rem; } .mt-2 { margin-top:1rem; } .mt-3 { margin-top:1.5rem; }
+
+  /* Big watermark number */
+  .big-num { font-size:3rem; right:5vw; bottom:10vh; }
+
+  /* Slide number badge */
+  .slide-num { bottom:auto; top:2.5vh; left:auto; right:5vw; font-size:.65rem; opacity:.5; }
+
+  /* Bottom navigation - larger touch targets */
+  .nav-controls { bottom:1.2vh; gap:.3rem; }
+  .nav-btn { padding:.6rem 1.4rem; font-size:.8rem; border-radius:10px; -webkit-tap-highlight-color:transparent; }
+
+  /* Counter repositioned */
+  .slide-counter { bottom:1.2vh; right:auto; left:5vw; font-size:.65rem; }
+
+  /* QR button */
+  .qr-btn { top:1.5vh; right:auto; left:5vw; padding:.35rem .7rem; font-size:.7rem; border-radius:6px; }
+
+  /* Progress bar thicker on mobile */
+  .progress-bar { height:4px; }
+
+  /* Poll bars */
+  .poll-row { gap:.5rem; margin-bottom:.5rem; }
+  .poll-label { min-width:2.2rem; font-size:.82rem; }
+  .poll-val { min-width:3rem; font-size:.78rem; }
+
+  /* Full images */
+  .full-img { border-radius:8px; }
+  .compare-imgs { gap:.6rem; margin-top:.8rem; }
+
+  /* Scroll hint for long slides */
+  .slide { -webkit-overflow-scrolling:touch; scroll-behavior:smooth; }
+  .slide::-webkit-scrollbar { display:none; }
+}
+
+/* Quiz slides */
+.quiz-title { font-size:clamp(1.6rem,4vw,2.8rem); font-weight:900; text-align:center; margin-bottom:2rem; }
+.quiz-title .teal { color:var(--teal); }
+.quiz-pair { display:flex; gap:1.5rem; justify-content:center; align-items:stretch; flex-wrap:wrap; }
+.quiz-card { flex:1; min-width:280px; max-width:520px; border-radius:16px; overflow:hidden; border:2px solid var(--card-border); background:#fff; position:relative; }
+.quiz-card .quiz-label { position:absolute; top:12px; left:16px; font-size:1.1rem; font-weight:900; color:var(--teal); z-index:2; background:rgba(255,255,255,0.85); padding:2px 10px; border-radius:6px; }
+.quiz-card img { width:100%; height:280px; object-fit:cover; display:block; }
+.quiz-card .code-block { margin:0; border:none; border-radius:0; height:280px; overflow:auto; font-size:clamp(.7rem,1vw,.82rem); }
+
+.quiz-audio-card { flex:1; min-width:240px; max-width:420px; border-radius:16px; border:2px solid var(--card-border); background:#fff; padding:2rem; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1.2rem; min-height:200px; }
+.quiz-audio-card .quiz-label { font-size:1.3rem; font-weight:900; color:var(--teal); }
+.quiz-audio-card audio { width:100%; max-width:300px; }
+.quiz-audio-card .voice-desc { font-size:.85rem; color:var(--text-dim); text-align:center; }
+
+.quiz-answer { text-align:center; margin-top:1.5rem; }
+.quiz-answer-btn { background:rgba(13,148,136,0.1); border:2px solid rgba(13,148,136,0.3); color:var(--teal); padding:.7rem 2rem; border-radius:12px; font-size:1rem; font-weight:700; cursor:pointer; font-family:inherit; transition:all .3s; }
+.quiz-answer-btn:hover { background:rgba(13,148,136,0.2); transform:scale(1.03); }
+.quiz-answer-box { display:none; margin-top:1rem; padding:1.2rem 2rem; border-radius:14px; background:rgba(13,148,136,0.08); border:1px solid rgba(13,148,136,0.2); }
+.quiz-answer-box.show { display:block; animation:fadeUp .4s ease; }
+.quiz-answer-box h4 { color:var(--teal); font-size:1.1rem; font-weight:900; margin-bottom:.3rem; }
+.quiz-answer-box p { font-size:.9rem; color:var(--text-sub); }
+
+.quiz-card .code-block { background:#1e293b; color:#e2e8f0; border:none; }
+.quiz-card .code-block .kw { color:#f472b6; }
+.quiz-card .code-block .str { color:#5eead4; }
+.quiz-card .code-block .fn { color:#a78bfa; }
+.quiz-card .code-block .cmt { color:#64748b; }
+
+/* Novel text block */
+.novel-block { padding:1.8rem 2rem; height:280px; overflow:auto; background:#fffbf0; display:flex; flex-direction:column; justify-content:flex-start; gap:1rem; border-top:3px solid var(--teal); }
+.novel-block .novel-source { font-size:.7rem; color:var(--text-dim); font-weight:500; letter-spacing:.08em; text-transform:uppercase; }
+.novel-block .novel-text { font-size:clamp(.82rem,1.05vw,.92rem); line-height:2; color:#2d2418; font-weight:400; text-indent:1em; word-break:keep-all; }
+.novel-block .novel-text:first-of-type { text-indent:0; }
+.novel-block .novel-first { font-size:clamp(.95rem,1.2vw,1.05rem); font-weight:500; color:#1a1410; line-height:1.8; }
+
+@media (max-width:480px) {
+  .quiz-pair { flex-direction:column; gap:1rem; align-items:center; }
+  .quiz-pair:has(.quiz-audio-card) { flex-direction:row; gap:.6rem; align-items:stretch; }
+  .quiz-card { min-width:unset; max-width:100%; width:100%; }
+  .quiz-audio-card { min-width:0; max-width:none; width:50%; flex:1; padding:.8rem; min-height:120px; gap:.6rem; }
+  .quiz-audio-card .quiz-label { font-size:1rem; }
+  .quiz-audio-card .voice-desc { font-size:.72rem; }
+  .quiz-audio-card audio { max-width:100%; height:32px; }
+  .quiz-card img { height:180px; }
+  .quiz-card .code-block { height:200px; font-size:.7rem; }
+  .novel-block { height:220px; padding:1.2rem 1.4rem; }
+  .novel-block .novel-text { font-size:.78rem; }
+  .quiz-title { font-size:clamp(1.3rem,6vw,2rem); margin-bottom:1.2rem; }
+  .quiz-answer-btn { padding:.6rem 1.5rem; font-size:.9rem; }
+  .quiz-answer-box { padding:1rem 1.2rem; }
+  .quiz-audio-card { padding:1.2rem; min-height:140px; }
+}
+
+/* Live voting bars on quiz slides */
+.quiz-vote-area { display:flex; align-items:center; gap:1.5rem; margin-top:1.2rem; justify-content:center; flex-wrap:wrap; }
+.quiz-bars { flex:1; max-width:500px; min-width:280px; }
+.quiz-bar-row { display:flex; align-items:center; gap:.6rem; margin-bottom:.6rem; }
+.quiz-bar-label { font-size:1.1rem; font-weight:900; width:1.8rem; text-align:center; }
+.quiz-bar-track { flex:1; height:32px; background:rgba(0,0,0,0.06); border-radius:10px; overflow:hidden; position:relative; }
+.quiz-bar-fill { height:100%; border-radius:10px; transition:width .6s cubic-bezier(.4,0,.2,1); display:flex; align-items:center; justify-content:flex-end; padding-right:8px; min-width:0; }
+.quiz-bar-fill.bar-a { background:linear-gradient(90deg,#0D9488,#5EEAD4); }
+.quiz-bar-fill.bar-b { background:linear-gradient(90deg,#F59E0B,#FCD34D); }
+.quiz-bar-pct { font-size:.75rem; font-weight:700; color:#fff; white-space:nowrap; }
+.quiz-bar-count { font-size:.85rem; font-weight:700; color:var(--text-dim); width:2.5rem; text-align:right; }
+.quiz-vote-total { font-size:.8rem; color:var(--text-dim); text-align:center; margin-top:.3rem; }
+.quiz-qr { display:flex; flex-direction:column; align-items:center; gap:.4rem; }
+.quiz-qr img { width:120px; height:120px; border-radius:10px; background:#fff; padding:6px; box-shadow:0 2px 12px rgba(0,0,0,0.08); }
+.quiz-qr .qr-label { font-size:.7rem; color:var(--text-dim); font-weight:500; }
+.quiz-reset-btn { background:none; border:1px solid rgba(0,0,0,0.1); color:var(--text-dim); padding:.3rem .8rem; border-radius:8px; font-size:.7rem; cursor:pointer; font-family:inherit; margin-top:.2rem; transition:all .2s; }
+.quiz-reset-btn:hover { border-color:var(--teal); color:var(--teal); }
+
+@media (min-width:1025px) {
+  .quiz-qr img { width:140px; height:140px; }
+  .quiz-bars { max-width:600px; }
+  .quiz-bar-track { height:38px; }
+}
+@media (max-width:480px) {
+  .quiz-vote-area { gap:.8rem; }
+  .quiz-qr img { width:90px; height:90px; }
+  .quiz-bar-track { height:26px; }
+}
+
+/* Tool poll results on presenter slide */
+.tool-poll-results { margin-top:1.5rem; }
+.tool-poll-bar-row { display:flex; align-items:center; gap:.6rem; margin-bottom:.4rem; }
+.tool-poll-bar-icon { width:28px; height:28px; border-radius:6px; object-fit:contain; }
+.tool-poll-bar-name { font-size:.8rem; font-weight:700; width:70px; text-align:right; }
+.tool-poll-bar-track { flex:1; height:26px; background:rgba(0,0,0,0.06); border-radius:8px; overflow:hidden; }
+.tool-poll-bar-fill { height:100%; border-radius:8px; background:linear-gradient(90deg,#0D9488,#5EEAD4); transition:width .6s cubic-bezier(.4,0,.2,1); display:flex; align-items:center; justify-content:flex-end; padding-right:6px; min-width:0; }
+.tool-poll-bar-pct { font-size:.7rem; font-weight:700; color:#fff; white-space:nowrap; }
+.tool-poll-bar-count { font-size:.8rem; font-weight:700; color:var(--text-dim); width:2rem; text-align:right; }
+.tool-poll-total { font-size:.8rem; color:var(--text-dim); text-align:center; margin-top:.5rem; }
+.tool-poll-reset-btn { background:none; border:1px solid rgba(0,0,0,0.1); color:var(--text-dim); padding:.3rem .8rem; border-radius:8px; font-size:.7rem; cursor:pointer; font-family:inherit; margin-top:.3rem; transition:all .2s; }
+.tool-poll-reset-btn:hover { border-color:var(--teal); color:var(--teal); }
+
+/* Title slide QR */
+.title-qr { position:absolute; right:8vw; bottom:10vh; display:flex; flex-direction:column; align-items:center; text-align:center; }
+@media (max-width:768px) {
+  .title-qr { position:relative; right:auto; bottom:auto; margin-top:1.5rem; }
+  .title-qr img { width:100px !important; height:100px !important; }
+}
+
+/* Q&A list */
+.qa-list-wrap { width:100%; max-width:800px; max-height:55vh; overflow-y:auto; padding:.5rem; }
+.qa-list { display:flex; flex-direction:column; gap:.8rem; }
+.qa-item { background:#fff; border:1px solid var(--card-border); border-radius:14px; padding:1.2rem 1.5rem; text-align:left; animation:fadeUp .4s ease forwards; }
+.qa-item .qa-text { font-size:clamp(.95rem,1.3vw,1.15rem); line-height:1.6; color:var(--text-dark); word-break:keep-all; }
+.qa-item .qa-time { font-size:.7rem; color:var(--text-dim); margin-top:.4rem; }
+.qa-empty { color:var(--text-dim); font-size:1rem; }
+.qa-list-wrap::-webkit-scrollbar { width:4px; }
+.qa-list-wrap::-webkit-scrollbar-thumb { background:var(--teal); border-radius:4px; }
+@media (max-width:480px) {
+  .qa-list-wrap { max-height:50vh; }
+  .qa-item { padding:.8rem 1rem; border-radius:10px; }
+}
+
+/* Animations */
+@keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+.slide.active .a { animation:fadeUp .5s ease forwards; }
+.slide.active .d1 { animation-delay:.08s; opacity:0; }
+.slide.active .d2 { animation-delay:.2s; opacity:0; }
+.slide.active .d3 { animation-delay:.35s; opacity:0; }
+.slide.active .d4 { animation-delay:.5s; opacity:0; }
+.slide.active .d5 { animation-delay:.65s; opacity:0; }
+</style>
+</head>
+<body style="background:var(--bg-light)">
+
+<div class="progress-bar" id="progress"></div>
+<div class="slide-counter" id="counter"></div>
+<button class="qr-btn" onclick="toggleQR()">QR Code</button>
+<nav class="nav-controls">
+  <button class="nav-btn" onclick="prev()">&larr; Prev</button>
+  <button class="nav-btn" onclick="next()">Next &rarr;</button>
+</nav>
+
+<div class="qr-overlay" id="qrOverlay" onclick="toggleQR()">
+  <canvas id="qrCanvas"></canvas>
+  <p>QR 코드를 스캔하여 퀴즈에 참여하세요</p>
+  <p style="font-size:.8rem;color:var(--text-dim)">아무 곳이나 터치하여 닫기</p>
+  <p style="font-size:.75rem;color:var(--text-dim);margin-top:.5rem" id="qrUrlText"></p>
+</div>
+
+<div id="deck">
+
+<!-- ========== 1. TITLE (dark) ========== -->
+<section class="slide light" id="title-slide">
+  <div class="logo-row a d1"><img src="assets/logo.png" class="logo" alt="logo"></div>
+  <h1 class="a d2">AI <span class="teal">이해</span>와<br>업무 <span class="teal">활용</span></h1>
+  <h3 class="a d3" style="color:var(--text-sub)">AI란 무엇이며, 어떻게 활용할 수 있을까?</h3>
+  <p class="a d4 dim" style="margin-top:1.5rem">AX 데이터팀 &nbsp;|&nbsp; 김동린 전임</p>
+  <div class="title-qr a d5" id="titleQR">
+    <img id="titleQRImg" alt="QR" style="width:130px;height:130px;border-radius:12px;background:#fff;padding:6px;box-shadow:0 2px 16px rgba(0,0,0,0.1)">
+    <p style="font-size:.85rem;color:var(--teal);font-weight:700;margin-top:.5rem">📱 스마트폰으로 스캔하세요</p>
+    <p style="font-size:.72rem;color:var(--text-dim)">퀴즈 참여를 위해 미리 접속해주세요</p>
+  </div>
+  <span class="slide-num">01</span>
+</section>
+
+<!-- ========== 6. AI 써보셨나요 (light) ========== -->
+<section class="slide light" id="ai-tools-slide">
+  <h2 class="a d1">AI, 많이 써보셨나요?</h2>
+  <div class="tool-grid a d2">
+    <div class="tool-item"><img src="assets/logo-chatgpt.png" alt="ChatGPT"><span>ChatGPT</span></div>
+    <div class="tool-item"><img src="assets/logo-claude.png" alt="Claude"><span>Claude</span></div>
+    <div class="tool-item"><img src="assets/logo-copilot.png" alt="Copilot"><span>Copilot</span></div>
+    <div class="tool-item"><img src="assets/logo-llama.png" alt="Llama"><span>Llama</span></div>
+    <div class="tool-item"><img src="assets/logo-perplexity.png" alt="Perplexity"><span>Perplexity</span></div>
+    <div class="tool-item"><img src="assets/logo-gemini.png" alt="Gemini"><span>Gemini</span></div>
+    <div class="tool-item"><img src="assets/logo-grok.png" alt="Grok"><span>Grok</span></div>
+  </div>
+  <p class="dim a d3 mt-2">ChatGPT, 언제 처음 써보셨나요?</p>
+  <div class="tool-poll-results a d4" id="toolPollResults">
+    <div id="toolPollBars"></div>
+    <p class="tool-poll-total" id="toolPollTotal">투표 대기 중...</p>
+    <button class="tool-poll-reset-btn" onclick="resetToolPoll()">초기화</button>
+  </div>
+  <span class="slide-num">02</span>
+</section>
+
+<!-- ========== 2. 퀴즈: 이미지 ========== -->
+<section class="slide light center">
+  <h2 class="quiz-title a d1">어느 쪽이 <span class="teal">AI가 만든</span> 이미지일까요?</h2>
+  <div class="quiz-pair a d2">
+    <div class="quiz-card">
+      <span class="quiz-label">A</span>
+      <img src="assets/quiz-real-building.jpg" alt="이미지 A">
+    </div>
+    <div class="quiz-card">
+      <span class="quiz-label">B</span>
+      <img src="assets/quiz-ai-building.jpg" alt="이미지 B">
+    </div>
+  </div>
+  <div class="quiz-vote-area a d3" data-quiz="1">
+    <div class="quiz-bars">
+      <div class="quiz-bar-row">
+        <span class="quiz-bar-label" style="color:#0D9488">A</span>
+        <div class="quiz-bar-track"><div class="quiz-bar-fill bar-a" id="q1barA"><span class="quiz-bar-pct" id="q1pctA"></span></div></div>
+        <span class="quiz-bar-count" id="q1cntA">0</span>
+      </div>
+      <div class="quiz-bar-row">
+        <span class="quiz-bar-label" style="color:#F59E0B">B</span>
+        <div class="quiz-bar-track"><div class="quiz-bar-fill bar-b" id="q1barB"><span class="quiz-bar-pct" id="q1pctB"></span></div></div>
+        <span class="quiz-bar-count" id="q1cntB">0</span>
+      </div>
+      <p class="quiz-vote-total" id="q1total"></p>
+    </div>
+  </div>
+  <div class="quiz-answer a d4">
+    <button class="quiz-answer-btn" onclick="this.style.display='none';this.nextElementSibling.classList.add('show')">정답 보기</button>
+    <div class="quiz-answer-box">
+      <h4>정답: B - AI가 생성한 이미지</h4>
+      <p>해상도, 조명, 피사체 모두 실사 수준.<br>사람이 촬영한 A와 구별이 어렵습니다.</p>
+    </div>
+  </div>
+  <span class="slide-num">02</span>
+</section>
+
+<!-- ========== 3. 퀴즈: 음성 ========== -->
+<section class="slide light center">
+  <h2 class="quiz-title a d1">사람의 <span class="teal">감정이 담긴</span> 목소리는?</h2>
+  <div class="quiz-pair a d2">
+    <div class="quiz-audio-card">
+      <span class="quiz-label">A</span>
+      <p class="voice-desc">따뜻하고 감성적인 톤</p>
+      <audio controls preload="auto" src="assets/quiz-voice-a.wav"></audio>
+    </div>
+    <div class="quiz-audio-card">
+      <span class="quiz-label">B</span>
+      <p class="voice-desc">차분하고 전문적인 톤</p>
+      <audio controls preload="auto" src="assets/quiz-voice-b.wav"></audio>
+    </div>
+  </div>
+  <div class="quiz-vote-area a d3" data-quiz="2">
+    <div class="quiz-bars">
+      <div class="quiz-bar-row">
+        <span class="quiz-bar-label" style="color:#0D9488">A</span>
+        <div class="quiz-bar-track"><div class="quiz-bar-fill bar-a" id="q2barA"><span class="quiz-bar-pct" id="q2pctA"></span></div></div>
+        <span class="quiz-bar-count" id="q2cntA">0</span>
+      </div>
+      <div class="quiz-bar-row">
+        <span class="quiz-bar-label" style="color:#F59E0B">B</span>
+        <div class="quiz-bar-track"><div class="quiz-bar-fill bar-b" id="q2barB"><span class="quiz-bar-pct" id="q2pctB"></span></div></div>
+        <span class="quiz-bar-count" id="q2cntB">0</span>
+      </div>
+      <p class="quiz-vote-total" id="q2total"></p>
+    </div>
+  </div>
+  <div class="quiz-answer a d4">
+    <button class="quiz-answer-btn" onclick="this.style.display='none';this.nextElementSibling.classList.add('show')">정답 보기</button>
+    <div class="quiz-answer-box">
+      <h4>정답: 둘 다 AI입니다</h4>
+      <p>사람의 목소리라고 확신했던 그 음성도 AI가 생성했습니다.<br>이제 귀로는 구별할 수 없는 시대입니다.</p>
+    </div>
+  </div>
+  <span class="slide-num">03</span>
+</section>
+
+<!-- ========== 4. 퀴즈: 코드 ========== -->
+<section class="slide light center">
+  <h2 class="quiz-title a d1">어느 쪽이 <span class="teal">사람이 쓴</span> 소설일까요?</h2>
+  <div class="quiz-pair a d2">
+    <div class="quiz-card">
+      <span class="quiz-label">A</span>
+      <div class="novel-block" style="text-align:left">
+        <div class="novel-source">??? &mdash; 작자 미상</div>
+        <p class="novel-first">남편이 말을 멈추기 전까지는, 나는 침묵이 이렇게 무게를 가진 것인 줄 몰랐다.</p>
+        <p class="novel-text">하얀 방이었어. 창문이 없었어. 벽에 손을 대니까 축축하고 따뜻했어, 살갗 같았어. 분명 누군가와 함께 들어온 것 같은데, 돌아보니 문이 없어졌어. 벽 안쪽에서 맥박 같은 게 느껴졌어. 나는 귀를 갖다 댔어. 숨소리였어. 벽이 아니었어.</p>
+      </div>
+    </div>
+    <div class="quiz-card">
+      <span class="quiz-label">B</span>
+      <div class="novel-block" style="text-align:left">
+        <div class="novel-source">??? &mdash; 작자 미상</div>
+        <p class="novel-first">아내가 채식주의자가 되기 전까지는, 나는 그녀가 특별한 점이 전혀 없는 여자라고 생각했다.</p>
+        <p class="novel-text">어두운 숲이었어. 아무도 없었어. 뾰죽한 잎이 돋은 나무들을 헤치느라고 얼굴에, 팔에 상처가 났어. 분명 일행과 함께였던 것 같은데, 혼자 길을 잃었나 봐.</p>
+      </div>
+    </div>
+  </div>
+  <div class="quiz-vote-area a d3" data-quiz="3">
+    <div class="quiz-bars">
+      <div class="quiz-bar-row">
+        <span class="quiz-bar-label" style="color:#0D9488">A</span>
+        <div class="quiz-bar-track"><div class="quiz-bar-fill bar-a" id="q3barA"><span class="quiz-bar-pct" id="q3pctA"></span></div></div>
+        <span class="quiz-bar-count" id="q3cntA">0</span>
+      </div>
+      <div class="quiz-bar-row">
+        <span class="quiz-bar-label" style="color:#F59E0B">B</span>
+        <div class="quiz-bar-track"><div class="quiz-bar-fill bar-b" id="q3barB"><span class="quiz-bar-pct" id="q3pctB"></span></div></div>
+        <span class="quiz-bar-count" id="q3cntB">0</span>
+      </div>
+      <p class="quiz-vote-total" id="q3total"></p>
+    </div>
+  </div>
+  <div class="quiz-answer a d4">
+    <button class="quiz-answer-btn" onclick="this.style.display='none';this.nextElementSibling.classList.add('show')">정답 보기</button>
+    <div class="quiz-answer-box">
+      <h4>A = AI (Claude Opus 4.6) &nbsp;|&nbsp; B = 한강 『채식주의자』</h4>
+      <p>형식은 완벽하지만, <span class="teal bold">맥락과 의도의 밀도</span>가 다릅니다.<br>코드도 마찬가지 &mdash; AI는 패턴을 모방하지만, 시니어는 <span class="teal bold">"왜"</span>를 압니다.</p>
+    </div>
+  </div>
+  <span class="slide-num">04</span>
+</section>
+
+<!-- ========== 5. 퀴즈 생성 코드 ========== -->
+<section class="slide light">
+  <h2 class="a d1">방금 그 퀴즈, <span class="teal">이 코드</span>로 만들었습니다</h2>
+  <p class="a d2 dim" style="margin-bottom:1rem">Gemini API 몇 줄이면 이미지 생성과 음성 합성이 가능합니다</p>
+  <div class="row">
+    <div class="col a d3">
+      <div class="code-block" style="font-size:clamp(.65rem,.9vw,.78rem)">
+        <div class="fname">generate_image.py</div>
+<span class="kw">from</span> google <span class="kw">import</span> genai
+
+client = genai.<span class="fn">Client</span>(api_key=<span class="str">"API_KEY"</span>)
+
+response = client.models.<span class="fn">generate_content</span>(
+  model=<span class="str">"gemini-3.1-flash-image-preview"</span>,
+  contents=<span class="str">"현대적 아파트 석양 사진"</span>,
+  config={<span class="str">"response_modalities"</span>:
+    [<span class="str">"TEXT"</span>, <span class="str">"IMAGE"</span>]}
+)
+
+<span class="cmt"># 이미지 저장</span>
+<span class="kw">for</span> part <span class="kw">in</span> response.parts:
+  <span class="kw">if</span> part.inline_data:
+    <span class="fn">open</span>(<span class="str">"result.png"</span>,<span class="str">"wb"</span>).<span class="fn">write</span>(
+      part.inline_data.data)
+      </div>
+    </div>
+    <div class="col a d4">
+      <div class="code-block" style="font-size:clamp(.65rem,.9vw,.78rem)">
+        <div class="fname">generate_voice.py</div>
+<span class="kw">from</span> google <span class="kw">import</span> genai
+
+client = genai.<span class="fn">Client</span>(api_key=<span class="str">"API_KEY"</span>)
+
+response = client.models.<span class="fn">generate_content</span>(
+  model=<span class="str">"gemini-2.5-pro-preview-tts"</span>,
+  contents=<span class="str">"안녕하세요, 함께 해주셔서 감사합니다"</span>,
+  config={
+    <span class="str">"response_modalities"</span>: [<span class="str">"AUDIO"</span>],
+    <span class="str">"speech_config"</span>: {
+      <span class="str">"voice_config"</span>: {
+        <span class="str">"prebuilt_voice_config"</span>: {
+          <span class="str">"voice_name"</span>: <span class="str">"Kore"</span>
+  }}}}
+)
+      </div>
+    </div>
+  </div>
+  <span class="slide-num">05</span>
+</section>
+
+<section class="slide light" id="alphago-history-slide">
+  <h2 class="a d1">2016년, AI의 첫 충격</h2>
+  <div class="row mt-1">
+    <div class="col a d2">
+      <h3 style="color:var(--text-dark)">혹시 이때 이세돌을 이긴<br>AI의 이름을 아시나요?</h3>
+      <p class="mt-1">전 세계에 AI의 가능성을 알린 역사적인 순간이었습니다.</p>
+    </div>
+    <div class="col a d3">
+      <div class="card" style="text-align:center">
+        <img src="assets/alphago.jpeg" alt="AlphaGo vs 이세돌" style="width:100%;border-radius:10px;margin-bottom:1rem;">
+        <p style="font-weight:700">AlphaGo vs 이세돌</p>
+        <p class="teal bold mt-1" style="font-size:1.1rem">4승 1패로 AI 승리</p>
+      </div>
+    </div>
+  </div>
+  <span class="slide-num">04</span>
+</section>
+
+<!-- ========== 5. 알파고 vs GPT (dark) ========== -->
+<section class="slide light" id="alphago-slide">
+  <h2 class="a d1">알파고와 GPT, 같은 AI일까?</h2>
+  <div class="compare mt-1" style="align-items:stretch">
+    <div class="compare-col a d2" style="text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center">
+      <div style="height:160px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem">
+        <img src="assets/logo-alphago.png" style="max-height:140px;max-width:280px;border-radius:16px;object-fit:contain" alt="AlphaGo">
+      </div>
+      <h4>AlphaGo</h4>
+      <ul><li>바둑 특화 AI</li><li>기보 데이터 학습</li><li>"다음 수" 예측</li></ul>
+    </div>
+    <div class="compare-col a d3" style="text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center">
+      <div style="height:160px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem">
+        <img src="assets/logo-chatgpt.png" style="max-height:140px;max-width:140px;border-radius:16px;object-fit:contain" alt="ChatGPT">
+      </div>
+      <h4 class="teal">ChatGPT (LLM)</h4>
+      <ul><li>범용 언어 AI</li><li>텍스트 데이터 학습</li><li>"다음 단어" 예측</li></ul>
+    </div>
+  </div>
+  <p class="a d4 mt-2" style="text-align:center"><span class="amber bold">비슷하지만, 다릅니다.</span></p>
+  <span class="slide-num">05</span>
+</section>
+
+<!-- ========== 핵심 원리: 확률 기반 '다음' 예측 ========== -->
+<section class="slide img-slide"><img src="assets/ppt-slide6.png" alt="핵심 원리: 확률 기반 다음 예측"></section>
+
+<!-- ========== 텍스트를 넘어서: 생성형 AI의 확장 ========== -->
+<section class="slide img-slide"><img src="assets/ppt-slide7.png" alt="텍스트를 넘어서: 생성형 AI의 확장"></section>
+
+<!-- ========== 잠깐, GPT는 대화가 되던데? (LLM 텍스트 생성 애니메이션) ========== -->
+<section class="slide light center" id="llm-typing-slide">
+  <h2 class="a d1" style="font-weight:900">잠깐, GPT는 <span class="teal">대화</span>가 되던데?</h2>
+  <p class="a d2 dim" style="margin-bottom:2rem">사실 대화가 아닙니다 &mdash; 단어를 하나씩 예측해서 뱉는 것입니다.</p>
+  <div class="a d3" style="max-width:700px;width:100%;margin:0 auto">
+    <div style="background:rgba(13,148,136,0.06);border:1px solid rgba(13,148,136,0.15);border-radius:14px;padding:1.5rem 2rem;margin-bottom:1rem;text-align:left">
+      <p style="font-size:.75rem;color:var(--teal);font-weight:700;margin-bottom:.5rem;font-family:'JetBrains Mono',monospace">순차적 텍스트 생성</p>
+      <div id="llm-output" style="font-size:1.3rem;font-weight:500;line-height:1.8;min-height:3.5em;color:var(--text-dark)"></div>
+      <span id="llm-cursor" style="display:inline-block;width:2px;height:1.3em;background:var(--teal);vertical-align:text-bottom;animation:blink 1s step-end infinite;margin-left:2px"></span>
+    </div>
+    <div style="display:flex;align-items:center;gap:1rem;justify-content:center;margin-top:1.5rem">
+      <div id="llm-tokens" style="display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center"></div>
+    </div>
+  </div>
+  <p class="a d4 mt-2" style="text-align:center;font-weight:700;font-size:1.1rem">사실 대화가 아닙니다 &mdash; 단어를 하나씩 예측해서 뱉는 것입니다.</p>
+  <span class="slide-num">08</span>
+</section>
+
+<style>
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+@keyframes tokenPop { from{transform:scale(0.5);opacity:0} to{transform:scale(1);opacity:1} }
+.llm-token {
+  display:inline-block; padding:.25rem .6rem; border-radius:6px;
+  font-family:'JetBrains Mono',monospace; font-size:.85rem; font-weight:600;
+  animation:tokenPop .25s ease forwards; border:1.5px solid;
+}
+</style>
+
+<!-- ========== 순차적 텍스트 생성 (영상) ========== -->
+<section class="slide light center">
+  <video src="assets/quiz-text-video.mov" autoplay muted loop playsinline style="width:auto;height:80vh;max-width:90vw;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.12);object-fit:contain"></video>
+</section>
+
+<!-- ========== 11. 보이지 않는 곳 (light) ========== -->
+<section class="slide light" id="behind-slide">
+  <h2 class="a d1">보이지 않는 곳에서 일어나는 일</h2>
+  <div class="flow-vertical mt-2 a d2">
+    <div class="flow-card">
+      <img src="assets/icon-user.png" class="icon-img" alt="user">
+      <div><strong style="color:var(--text-dark)">사용자</strong><br><span class="dim" style="font-size:.78rem">질문 입력</span></div>
+    </div>
+    <span class="flow-arrow-down">&darr;</span>
+    <div class="flow-card highlight">
+      <img src="assets/icon-datacenter.png" class="icon-img" alt="datacenter">
+      <div><strong style="color:var(--text-dark)">데이터 센터</strong><br><span class="teal" style="font-size:.78rem">GPU가 단어를 하나씩 생성</span></div>
+    </div>
+    <span class="flow-arrow-down">&darr;</span>
+    <div class="flow-card">
+      <img src="assets/icon-screen.png" class="icon-img" alt="screen">
+      <div><strong style="color:var(--text-dark)">사용자 화면</strong><br><span class="dim" style="font-size:.78rem">대화처럼 보임</span></div>
+    </div>
+  </div>
+  <p class="a d3 mt-2">GPU가 빠르게 단어를 쏘아주니 마치 <strong style="color:var(--text-dark)">대화를 하는 것처럼</strong> 느끼게 됩니다</p>
+  <span class="slide-num">12</span>
+</section>
+
+<!-- ========== 12. 슬라이드 비교 (fullscreen) ========== -->
+<section class="slide img-slide"><img src="assets/slide-contrast.jpeg" alt="대비"></section>
+
+<!-- ========== 13. AI에게 일 시키기 (light) ========== -->
+<section class="slide light">
+  <div class="logo-row a d1"><img src="assets/icon-ai.png" class="icon-img" alt="ai"></div>
+  <h2 class="a d1">AI에게 일을 잘 시키려면?</h2>
+  <p class="a d2 teal bold">사람에게 작업지시를 내릴 때처럼</p>
+  <div class="features a d3">
+    <div class="feature">
+      <img src="assets/icon-concrete.png" class="icon-img" style="margin:0 auto" alt="">
+      <h4>구체적으로</h4>
+      <p>무엇을, 어떻게, 어디에<br>명확히 전달</p>
+    </div>
+    <div class="feature">
+      <img src="assets/icon-context.png" class="icon-img" style="margin:0 auto" alt="">
+      <h4>맥락 제공</h4>
+      <p>배경 정보와 목적을<br>충분히 설명</p>
+    </div>
+    <div class="feature">
+      <img src="assets/icon-criteria.png" class="icon-img" style="margin:0 auto" alt="">
+      <h4>기준 제시</h4>
+      <p>결과물의 형식, 분량,<br>조건을 지정</p>
+    </div>
+  </div>
+  <span class="slide-num">15</span>
+</section>
+
+<!-- ========== 14. 현장 지시 비교 (영상) ========== -->
+<section class="slide light center">
+  <iframe src="https://www.youtube.com/embed/LEYHu-e7DHU" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius:16px;max-width:90vw;height:92vh;aspect-ratio:9/16;box-shadow:0 4px 24px rgba(0,0,0,0.12)"></iframe>
+</section>
+
+<!-- ========== 15. 소통의 문제 (dark) ========== -->
+<section class="slide light">
+  <div class="logo-row a d1"><img src="assets/icon-construction.png" class="icon-img" alt=""></div>
+  <h2 class="a d1">현장에서 겪는 소통의 문제</h2>
+  <p class="a d2" style="color:var(--text-sub)">작업자가 문제가 아니라, 지시하는 관리자의 문제. <strong class="bold">AI도 마찬가지입니다.</strong></p>
+  <div class="mt-2 a d3">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.5rem">
+      <p style="font-weight:700;color:#dc2626;font-size:.8rem;text-align:center">모호한 지시</p>
+      <p style="font-weight:700;color:var(--teal);font-size:.8rem;text-align:center">명확한 지시</p>
+    </div>
+    <div class="comm-row"><div class="comm-cell bad">"이 폼 좀 여기 쌓아 놓으세요"</div><div class="comm-cell good">"옆에 있는 것과 같은 방향으로 5단씩 겹쳐서 쌓아 주세요"</div></div>
+    <div class="comm-row"><div class="comm-cell bad">"저 파이프나 모아 주세요"</div><div class="comm-cell good">"굵기/모양별로 구분해서 지정 위치에 모아 주세요"</div></div>
+    <div class="comm-row"><div class="comm-cell bad">"폐기물 한쪽으로 모아 놓으세요"</div><div class="comm-cell good">"목재는 여기, 폐콘크리트는 저쪽 포대에 따로 분류해 주세요"</div></div>
+  </div>
+  <span class="slide-num">17</span>
+</section>
+
+
+<!-- ========== AI는 똑똑한 신입사원 ========== -->
+<section class="slide light">
+  <div class="logo-row a d1"><img src="assets/icon-construction.png" class="icon-img" alt=""></div>
+  <h2 class="a d1">AI(LLM)는 기계가 아니라,<br><span class="teal">똑똑한 신입사원</span>입니다</h2>
+  <p class="a d2" style="color:var(--text-sub)">모든 매뉴얼을 외웠지만, 현장 경험은 없는 신입. <strong class="bold">어떻게 시키느냐가 결과를 결정합니다.</strong></p>
+  <div class="mt-2 a d3">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.5rem">
+      <p style="font-weight:700;color:#dc2626;font-size:.8rem;text-align:center">이렇게 시키면 엉뚱한 결과</p>
+      <p style="font-weight:700;color:var(--teal);font-size:.8rem;text-align:center">이렇게 시키면 원하는 결과</p>
+    </div>
+    <div class="comm-row"><div class="comm-cell bad">"보고서 하나 써 줘"</div><div class="comm-cell good">"3월 공정 현황을 A4 1장, 표 포함해서 요약해 줘"</div></div>
+    <div class="comm-row"><div class="comm-cell bad">"이거 번역해"</div><div class="comm-cell good">"이 계약서를 건설 용어 기준으로 한영 번역해 줘"</div></div>
+    <div class="comm-row"><div class="comm-cell bad">"안전 교육 자료 만들어"</div><div class="comm-cell good">"신규 작업자 대상, 고소작업 안전수칙 10개를 쉬운 말로 정리해 줘"</div></div>
+  </div>
+  <span class="slide-num">17-1</span>
+</section>
+<!-- ========== 16. 이렇게 시키면 원하는 결과 (light) ========== -->
+<section class="slide light center">
+  <h2 class="a d1 teal bold">이렇게 시키면 원하는 결과</h2>
+  <div class="a d2 mt-1" style="max-width:850px;display:flex;flex-direction:column;gap:1rem;text-align:left">
+    <div style="background:#f0fdfa;border:1px solid #ccfbf1;border-left:4px solid var(--teal);border-radius:12px;padding:1.2rem 1.5rem">
+      <span style="font-size:.7rem;color:var(--teal);font-weight:700;letter-spacing:.05em">구체적 + 맥락 + 기준</span>
+      <p style="font-size:1.25rem;margin-top:.4rem">"3월 <strong>A공구 골조공사</strong> 공정 현황을 <strong>공종별 진행률·지연 사유</strong> 포함해서, <strong>발주처 보고용 A4 1장 표</strong>로 요약해 줘"</p>
+    </div>
+    <div style="background:#f0fdfa;border:1px solid #ccfbf1;border-left:4px solid var(--teal);border-radius:12px;padding:1.2rem 1.5rem">
+      <span style="font-size:.7rem;color:var(--teal);font-weight:700;letter-spacing:.05em">구체적 + 맥락 + 기준</span>
+      <p style="font-size:1.25rem;margin-top:.4rem">"<strong>해외 파트너사 제출용</strong>으로, 이 하도급 계약서의 <strong>공사범위 조항</strong>을 건설 전문 용어 기준으로 한영 번역하되, <strong>원문 대조 가능한 2단 표</strong>로 정리해 줘"</p>
+    </div>
+    <div style="background:#f0fdfa;border:1px solid #ccfbf1;border-left:4px solid var(--teal);border-radius:12px;padding:1.2rem 1.5rem">
+      <span style="font-size:.7rem;color:var(--teal);font-weight:700;letter-spacing:.05em">구체적 + 맥락 + 기준</span>
+      <p style="font-size:1.25rem;margin-top:.4rem">"<strong>신규 입장 작업자</strong> 대상, <strong>고소작업(비계·사다리)</strong> 안전수칙 10개를 쉬운 말로 정리해 줘. <strong>현장 게시용 A4 1장, 번호 목록</strong> 형식으로"</p>
+    </div>
+  </div>
+  <span class="slide-num">18</span>
+</section>
+
+<!-- ========== 17. 휴식 (dark) ========== -->
+<section class="slide light center">
+  <img src="assets/icon-break.png" class="a d1" style="width:64px;height:64px;border-radius:14px" alt="break">
+  <h1 class="a d2 mt-1">15분 휴식</h1>
+  <h3 class="a d3" style="color:var(--text-dim)">잠시 쉬었다가 돌아오겠습니다</h3>
+  <span class="slide-num">19</span>
+</section>
+
+<!-- ========== 18. AI 지능 (fullscreen) ========== -->
+<section class="slide light center">
+  <h2 class="a d1">현 시점 AI의 지능</h2>
+  <img src="assets/intelligence-chart.png" class="a d2 mt-2 full-img" alt="intelligence chart">
+  <span class="slide-num">21</span>
+</section>
+
+<!-- ========== 19. AI 비교 ========== -->
+<section class="slide light center" id="ai-compare-slide">
+  <div class="compare-imgs a d1">
+    <img src="assets/compare1.png" class="full-img" alt="compare1">
+    <img src="assets/compare2.png" class="full-img" alt="compare2">
+  </div>
+  <span class="slide-num">22</span>
+</section>
+
+<!-- ========== 20. 단어생성기 (dark) ========== -->
+<section class="slide light center">
+  <h3 class="a d1" style="color:var(--text-dim)">그럼 바로 사용할 수 있을까요?</h3>
+  <h1 class="a d2 mt-1">아닙니다.<br>AI는 <span class="teal">'단어생성기'</span>입니다.</h1>
+  <span class="slide-num">24</span>
+</section>
+
+<!-- ========== 20-1. 단어생성기 다이어그램 (img-slide) ========== -->
+<section class="slide img-slide"><img src="assets/ppt-slide21.png" alt="ChatGPT LLM 단어생성기 다이어그램"></section>
+
+<!-- ========== 20-2. CIP vs SCW 비교 (바로답 AI 결과) ========== -->
+<section class="slide img-slide"><img src="assets/ppt-slide22.png" alt="CIP vs SCW 비교"></section>
+
+<!-- ========== 할루시네이션 경고 ========== -->
+<section class="slide light center">
+  <img src="assets/icon-hallucination.png" class="a d1" style="width:80px;height:80px;border-radius:16px" alt="hallucination">
+  <h2 class="a d2 mt-1">잠깐, 이 답변을 믿어도 될까요?</h2>
+  <h1 class="a d3 mt-1" style="color:#ef4444;font-weight:900">할루시네이션 <span style="font-size:.6em;color:var(--text-sub)">(Hallucination)</span></h1>
+  <div class="card a d4 mt-2" style="max-width:650px;text-align:left;border-color:rgba(239,68,68,0.2)">
+    <p style="color:var(--text-sub);line-height:1.8">AI가 <strong style="color:#ef4444">사실이 아닌 정보를 마치 사실인 것처럼</strong> 자신있게 답변하는 현상입니다.<br>
+    앞의 CIP vs SCW 비교에서도 일부 내용이 실제와 다를 수 있습니다.</p>
+    <ul style="margin-top:1rem;color:var(--text-sub);line-height:2">
+      <li>학습 데이터에 없는 내용을 <strong>그럴듯하게 지어냄</strong></li>
+      <li>숫자, 날짜, 고유명사에서 <strong>특히 자주 발생</strong></li>
+      <li>전문 분야일수록 <strong>반드시 검증 필요</strong></li>
+    </ul>
+  </div>
+  <p class="a d5 mt-2 amber bold" style="font-size:1.1rem">AI의 답변은 항상 검증하세요</p>
+</section>
+
+<!-- ========== 20-3. RAG 자료참조 다이어그램 ========== -->
+<section class="slide img-slide"><img src="assets/ppt-slide23.png" alt="ChatGPT LLM + RAG 자료참조 다이어그램"></section>
+
+<!-- ========== 21. 보안 (fullscreen) ========== -->
+<section class="slide light center">
+  <h2 class="a d1">모든 자료를 넣어도 될까요?</h2>
+  <div class="card a d2 mt-2" style="max-width:550px;text-align:left;border-color:rgba(239,68,68,0.2)">
+    <h3 style="color:#ef4444;font-weight:700">주의가 필요합니다</h3>
+    <p class="mt-1" style="color:var(--text-sub)">외부 AI 서비스에 사내 기밀 문서, 개인정보, 계약 정보를 입력하면 데이터가 학습에 사용될 수 있습니다.</p>
+    <p class="mt-1 teal bold">사내 AI 서비스를 활용하세요</p>
+  </div>
+  <span class="slide-num">27</span>
+</section>
+
+<!-- ========== 21-1. 공용 AI 서비스 데이터 흐름 ========== -->
+<section class="slide img-slide"><img src="assets/ppt-slide25.png" alt="공용 AI 서비스 이용 시 데이터 흐름"></section>
+
+<!-- ========== AI 결과물의 저작권과 책임 ========== -->
+<section class="slide img-slide"><img src="assets/ppt-copyright.png" alt="AI 결과물의 저작권과 책임"></section>
+
+<!-- ========== 22. PART 3 NOW (dark) ========== -->
+<section class="slide light">
+  <p class="label a d1" style="color:var(--teal-light)">PART 3</p>
+  <h1 class="a d2">대우건설 <span class="teal">AI</span></h1>
+  <h3 class="a d3" style="color:var(--text-dim)">오늘부터 바로 활용할 수 있는 AI 서비스</h3>
+  <span class="slide-num">03</span>
+</section>
+
+<!-- ========== 23. 바로레터 AI (dark) ========== -->
+<section class="slide light">
+  <div style="display:flex;gap:.4rem;margin-bottom:.8rem" class="a d1">
+    <span class="tag teal">개발완료</span><span class="tag blue">전사 오픈</span>
+  </div>
+  <h2 class="a d1">[바로레터 AI]</h2>
+  <p class="a d2 desc" style="color:var(--text-sub)">AI가 지원하는 전문가의 레터 작성, 60개 이상 해외 현장/조직에서 활용 중</p>
+  <div class="row mt-1">
+    <div class="col a d3">
+      <img src="assets/baroletter-screenshot.png" class="product-img" alt="바로레터">
+    </div>
+    <div class="col a d4">
+      <img src="assets/baroletter-demo.gif" class="product-img" alt="바로레터 데모">
+    </div>
+  </div>
+  <p class="a d5 mt-1 dim" style="font-size:.85rem">바로넷 &gt; 업무시스템 &gt; DX에서 누구나 사용 가능</p>
+</section>
+
+<!-- ========== 24. PDF 전처리 (dark) ========== -->
+<section class="slide light">
+  <div style="display:flex;gap:.4rem;margin-bottom:.8rem" class="a d1">
+    <span class="tag teal">개발완료</span><span class="tag amber">자체 기술</span>
+  </div>
+  <h2 class="a d1">[PDF 문서 지능형 전처리]</h2>
+  <p class="a d2 desc" style="color:var(--text-sub)">프로젝트 문서를 신뢰도 높은 AI READY DATA로 변환하는 자체개발 기술</p>
+  <div class="row mt-1">
+    <div class="col a d3">
+      <img src="assets/pdf-process.png" class="product-img" alt="PDF 프로세스">
+    </div>
+    <div class="col a d3">
+      <img src="assets/pdf-screenshot.png" class="product-img" alt="PDF 스크린샷">
+    </div>
+  </div>
+</section>
+
+<!-- ========== 25. LL Agent (dark) ========== -->
+<section class="slide light">
+  <div style="display:flex;gap:.4rem;margin-bottom:.8rem" class="a d1">
+    <span class="tag teal">개발완료</span><span class="tag blue">전사 오픈</span>
+  </div>
+  <h2 class="a d1">[LL Agent]</h2>
+  <p class="a d2 desc" style="color:var(--text-sub)">쌓여만 있던 과거의 경험을 연결하다 &mdash; 현재 상황에 가장 필요한 과거 경험 데이터를 제공하는 AI Agent</p>
+  <div class="a d3">
+    <p style="color:var(--text-sub);font-size:.9rem;line-height:1.8">
+      &rarr; 같은 실수를 반복하지 않기 위해 축적해온 경험 데이터<br>
+      &rarr; 유사 사례를 적시적소에 공급하고 활용
+    </p>
+    <div class="flow mt-2">
+      <div class="flow-step"><strong class="teal">LL/BP Database</strong><br><span class="dim" style="font-size:.75rem">AI READY DATA 변환, 요약, 원인 분석</span></div>
+      <span class="flow-arrow">&rarr;</span>
+      <div class="flow-step"><strong>LL Agent</strong><br><span class="dim" style="font-size:.75rem">자연어 기반 경험 추천 및 분석</span></div>
+      <span class="flow-arrow">&rarr;</span>
+      <div class="flow-step"><strong class="teal">활용</strong><br><span class="dim" style="font-size:.75rem">입찰리스크, 계약 검토, 현장 문제 해결</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 26. 바로답 AI (dark) ========== -->
+<section class="slide light" id="barodap-slide">
+  <div style="display:flex;gap:.4rem;margin-bottom:.8rem" class="a d1">
+    <span class="tag teal">개발완료</span><span class="tag amber">26년 4월 전사 오픈 예정</span>
+  </div>
+  <h2 class="a d1" style="font-size:clamp(1.6rem,4vw,2.8rem);font-weight:900">[바로답 AI]</h2>
+  <p class="a d2 desc" style="color:var(--text-sub);font-size:clamp(1rem,2vw,1.4rem)">프로젝트 문서를 한번에 검색하고 분석, 신뢰할 수 있는 RAG 구현</p>
+  <img src="assets/barodap-screenshot.png" class="product-img a d3" style="max-width:90%" alt="바로답 AI">
+</section>
+
+<!-- ========== 27. 바로답 AI 상세 (dark) ========== -->
+<section class="slide light">
+  <h2 class="a d1">바로답 AI - <span class="teal">Agent 기반 분석</span></h2>
+  <div class="flow mt-2 a d2">
+    <div class="flow-step"><strong>질문 입력</strong><br><span class="dim" style="font-size:.72rem">현장 관리자</span></div>
+    <span class="flow-arrow">&rarr;</span>
+    <div class="flow-step"><strong class="teal">에이전트</strong><br><span class="dim" style="font-size:.72rem">질문 강화 &middot; 의도 파악</span></div>
+    <span class="flow-arrow">&rarr;</span>
+    <div class="flow-step"><strong>문서 탐색</strong><br><span class="dim" style="font-size:.72rem">벡터 유사도 검색</span></div>
+    <span class="flow-arrow">&rarr;</span>
+    <div class="flow-step"><strong class="teal">최종 답변</strong><br><span class="dim" style="font-size:.72rem">근거 기반 분석</span></div>
+  </div>
+  <div class="card mt-2 a d3" style="font-size:.85rem">
+    <p style="color:var(--text-sub);margin-bottom:.8rem"><strong class="bold">Q.</strong> 모잠비크 정부의 외환 정책 변경으로 필수 장비 수입에 큰 차질이 생겨서, 대체 공급망을 구축하려면 시간과 비용이 추가로 필요합니다. 이 상황을 계약서에 명시되지 않은 불가항력으로 주장할 수 있을까요?</p>
+    <div style="display:flex;flex-wrap:wrap;gap:.4rem">
+      <div class="flow-step" style="flex:1;min-width:80px"><span class="teal">질문 1</span></div>
+      <div class="flow-step" style="flex:1;min-width:80px"><span class="teal">질문 2</span></div>
+      <div class="flow-step" style="flex:1;min-width:80px"><span class="teal">질문 3</span></div>
+      <div class="flow-step" style="flex:1;min-width:80px"><span class="teal">질문 4</span></div>
+      <div class="flow-step" style="flex:1;min-width:80px"><span class="teal">질문 5</span></div>
+    </div>
+    <p class="teal bold mt-1">AI가 답변을 취합하여 최종 분석 결과 제공 &middot; 전체 프로세스를 하나의 Agent화</p>
+  </div>
+  <p class="dim mt-1 a d4">50개 조항 분석 <strong class="teal" style="font-size:1.3rem">10분</strong> 완료</p>
+</section>
+
+<!-- ========== 27-0.5 바로답 AI 채팅 예시 ========== -->
+<section class="slide img-slide"><img src="assets/barodap-chat-result.png" alt="바로답 AI 채팅 분석 결과"></section>
+
+<!-- ========== 27-0.6 바로답 AI 문서 뷰어 예시 1 ========== -->
+<section class="slide img-slide"><img src="assets/barodap-doc-viewer1.png" alt="바로답 AI 문서 뷰어 - 근거 원문 확인"></section>
+
+<!-- ========== 27-0.7 바로답 AI 문서 뷰어 예시 2 ========== -->
+<section class="slide img-slide"><img src="assets/barodap-doc-viewer2.png" alt="바로답 AI 문서 뷰어 - 시공기준 상세"></section>
+
+<!-- ========== 27-1. 바로답 AI 계약조항 비교분석 ========== -->
+<section class="slide light center" id="barodap-features-slide">
+  <h2 class="a d1">바로답 AI - <span class="teal">계약조항 비교분석</span></h2>
+  <div class="compare-imgs a d2" style="margin-top:1rem">
+    <img src="assets/barodap-contract.png" class="full-img" style="border:1px solid var(--card-border);border-radius:12px" alt="계약조항 비교분석 테이블">
+    <img src="assets/barodap-chat.png" class="full-img" style="border:1px solid var(--card-border);border-radius:12px" alt="RAG 분석 채팅">
+  </div>
+</section>
+
+<!-- ========== 27-2. 바로답 AI 문서 뷰어 ========== -->
+<section class="slide img-slide"><img src="assets/barodap-viewer.png" alt="바로답 AI 문서 뷰어 - 근거 문서 원문 확인"></section>
+
+<!-- ========== 28. Q&A (dark) ========== -->
+<section class="slide light center" id="qa-slide" data-qa="true">
+  <h1 class="a d1" style="font-size:clamp(2rem,5vw,3.5rem)">Q & A</h1>
+  <h3 class="a d2 dim" style="margin-bottom:1rem">스마트폰에서 질문을 작성해 주세요</h3>
+  <div class="qa-list-wrap a d3" id="qaListWrap">
+    <div class="qa-list" id="qaList"></div>
+    <p class="qa-empty" id="qaEmpty">아직 질문이 없습니다</p>
+  </div>
+  <button class="quiz-reset-btn a d4" onclick="resetQuestions()" style="margin-top:.5rem">질문 초기화</button>
+  <span class="slide-num">38</span>
+</section>
+
+<!-- ========== 29. 감사합니다 (dark) ========== -->
+<section class="slide light center">
+  <div class="logo-row a d1" style="justify-content:center"><img src="assets/logo.png" class="logo" alt="logo"></div>
+  <h1 class="a d2" style="font-size:clamp(2.5rem,6vw,4.5rem)">감사합니다</h1>
+  <p class="dim a d3 mt-1">AX 데이터팀 &nbsp;|&nbsp; 김동린 전임</p>
+  <span class="slide-num">39</span>
+</section>
+
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
+<!-- QR Code library (client-side) -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+
+<script>
+let cur=0;
+var isViewer = location.search.includes('viewer=1');
+const slides=document.querySelectorAll('.slide'), total=slides.length;
+const prog=document.getElementById('progress'), cnt=document.getElementById('counter');
+
+function go(from,to){
+  if(to<0||to>=total)return;
+  stopLLMTyping();
+  slides[from].classList.remove('active');slides[from].classList.add('prev');
+  setTimeout(()=>slides[from].classList.remove('prev'),450);
+  slides[to].classList.add('active');slides[to].scrollTop=0;cur=to;
+  prog.style.width=((to+1)/total*100)+'%';
+  cnt.textContent=(to+1)+' / '+total;
+  document.body.style.background='#F0FDFA';
+  if(!isViewer)try{sessionStorage.setItem('s',to)}catch(e){}
+  if(slides[to].id==='llm-typing-slide') setTimeout(startLLMTyping,600);
+  if(!isViewer && typeof setActiveQuiz==='function') setActiveQuiz();
+  if(!isViewer && typeof currentSlideRef!=='undefined') currentSlideRef.set(to);
+}
+function next(){go(cur,cur+1)} function prev(){go(cur,cur-1)}
+
+document.addEventListener('keydown',e=>{
+  if(isViewer)return;
+  if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();next()}
+  if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();prev()}
+  if(e.key==='Home'){e.preventDefault();go(cur,0)}
+  if(e.key==='End'){e.preventDefault();go(cur,total-1)}
+  if(e.key==='q'||e.key==='Q')toggleQR();
+  if(e.key==='Escape')document.getElementById('qrOverlay').classList.remove('show');
+});
+
+let tx=0,ty=0;
+document.addEventListener('touchstart',e=>{if(!isViewer){tx=e.changedTouches[0].screenX;ty=e.changedTouches[0].screenY}},{passive:true});
+document.addEventListener('touchend',e=>{
+  if(isViewer)return;
+  const dx=e.changedTouches[0].screenX-tx,dy=e.changedTouches[0].screenY-ty;
+  if(Math.abs(dx)>Math.abs(dy)*1.5&&Math.abs(dx)>60){dx<0?next():prev()}
+},{passive:true});
+
+function toggleQR(){
+  var o=document.getElementById('qrOverlay');o.classList.toggle('show');
+  if(o.classList.contains('show')){
+    var c=document.getElementById('qrCanvas');
+    QRCode.toCanvas(c, VOTE_URL, {width:280,margin:1,color:{dark:'#0F1B2D',light:'#FFFFFF'}});
+  }
+}
+
+// Answer reveals
+document.querySelectorAll('.reveal-trigger').forEach(el=>{
+  el.addEventListener('click',()=>{el.querySelector('.reveal-target')?.classList.toggle('revealed')});
+});
+
+// LLM Typing Animation
+const llmTokens = [
+  {text:'AI는', color:'#0D9488'},
+  {text:'인공지능', color:'#F59E0B'},
+  {text:'(Artificial', color:'#8B5CF6'},
+  {text:'Intelligence)의', color:'#8B5CF6'},
+  {text:'약자로,', color:'#1E293B'},
+  {text:'기계가', color:'#0D9488'},
+  {text:'학습하고', color:'#F59E0B'},
+  {text:'판단하는', color:'#EF4444'},
+  {text:'기술입니다.', color:'#1E293B'},
+];
+let llmAnimId=null, llmIdx=0, llmRunning=false;
+
+function startLLMTyping(){
+  const out=document.getElementById('llm-output');
+  const tokens=document.getElementById('llm-tokens');
+  if(!out||!tokens)return;
+  out.innerHTML='';tokens.innerHTML='';llmIdx=0;llmRunning=true;
+  function typeNext(){
+    if(llmIdx>=llmTokens.length||!llmRunning){
+      document.getElementById('llm-cursor').style.display='none';
+      return;
+    }
+    document.getElementById('llm-cursor').style.display='inline-block';
+    const t=llmTokens[llmIdx];
+    // Add token badge
+    const badge=document.createElement('span');
+    badge.className='llm-token';
+    badge.style.background=t.color+'18';badge.style.color=t.color;badge.style.borderColor=t.color+'40';
+    badge.textContent=t.text;
+    tokens.appendChild(badge);
+    // Type into output
+    const span=document.createElement('span');
+    span.style.color=t.color;span.style.fontWeight='600';
+    span.textContent=(llmIdx>0?' ':'')+t.text;
+    span.style.opacity='0';span.style.transition='opacity .2s';
+    out.appendChild(span);
+    setTimeout(()=>span.style.opacity='1',30);
+    llmIdx++;
+    const delay=300+Math.random()*400;
+    llmAnimId=setTimeout(typeNext,delay);
+  }
+  llmAnimId=setTimeout(typeNext,800);
+}
+function stopLLMTyping(){
+  llmRunning=false;
+  if(llmAnimId){clearTimeout(llmAnimId);llmAnimId=null}
+}
+
+// === Live Quiz Voting (Firebase) ===
+
+function updateQuizBars(quizId, results) {
+  const total = results.A + results.B;
+  const pctA = total > 0 ? Math.round(results.A / total * 100) : 0;
+  const pctB = total > 0 ? Math.round(results.B / total * 100) : 0;
+  const q = 'q' + quizId;
+  const barA = document.getElementById(q + 'barA');
+  if (!barA) return;
+  barA.style.width = (total > 0 ? Math.max(pctA, 4) : 0) + '%';
+  document.getElementById(q + 'barB').style.width = (total > 0 ? Math.max(pctB, 4) : 0) + '%';
+  document.getElementById(q + 'pctA').textContent = total > 0 ? pctA + '%' : '';
+  document.getElementById(q + 'pctB').textContent = total > 0 ? pctB + '%' : '';
+  document.getElementById(q + 'cntA').textContent = results.A;
+  document.getElementById(q + 'cntB').textContent = results.B;
+  document.getElementById(q + 'total').textContent = total > 0 ? '총 ' + total + '명 참여' : '투표 대기 중...';
+}
+
+function resetQuiz(quizId) {
+  quizVotesRef(quizId).remove();
+}
+
+// Notify Firebase which quiz/qa is active (called on slide change)
+function setActiveQuiz() {
+  var voteArea = slides[cur]?.querySelector('.quiz-vote-area');
+  var quizId = voteArea ? Number(voteArea.dataset.quiz) : 0;
+  var isQA = slides[cur]?.dataset.qa === 'true';
+  var isTools = slides[cur]?.id === 'ai-tools-slide';
+  var activeId = isTools ? 'tools' : isQA ? 'qa' : quizId;
+  activeQuizRef.set(activeId);
+}
+
+// --- Q&A ---
+function addQuestionToList(q) {
+  var list = document.getElementById('qaList');
+  var empty = document.getElementById('qaEmpty');
+  if (!list) return;
+  empty.style.display = 'none';
+  var item = document.createElement('div');
+  item.className = 'qa-item';
+  item.innerHTML = '<div class="qa-text">' + escapeHtml(q.text) + '</div>';
+  list.appendChild(item);
+  var wrap = document.getElementById('qaListWrap');
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+function escapeHtml(t) {
+  var d = document.createElement('div');
+  d.textContent = t;
+  return d.innerHTML;
+}
+
+function resetQuestions() {
+  if (!confirm('질문을 모두 초기화할까요?')) return;
+  questionsRef.remove();
+  var list = document.getElementById('qaList');
+  if (list) list.innerHTML = '';
+  var empty = document.getElementById('qaEmpty');
+  if (empty) empty.style.display = '';
+}
+
+function loadQuestions() {
+  // Load existing questions and listen for new ones
+  questionsRef.on('child_added', function(snap) {
+    addQuestionToList(snap.val());
+  });
+  questionsRef.on('value', function(snap) {
+    if (snap.val() === null) {
+      var l = document.getElementById('qaList'); if(l) l.innerHTML='';
+      var em = document.getElementById('qaEmpty'); if(em) em.style.display='';
+    }
+  });
+}
+
+// Load QR into title slide (client-side generation)
+function loadSharedQR() {
+  var titleImg = document.getElementById('titleQRImg');
+  if (titleImg) {
+    QRCode.toDataURL(VOTE_URL, {width:260,margin:1,color:{dark:'#0F1B2D',light:'#FFFFFF'}}, function(err, url) {
+      if (!err) titleImg.src = url;
+    });
+  }
+  var urlEl = document.getElementById('qrUrlText');
+  if (urlEl) urlEl.textContent = VOTE_URL;
+}
+
+// Firebase listeners (replaces SSE)
+function connectFirebaseListeners() {
+  // Listen for vote results on all quizzes
+  for (var q = 1; q <= 3; q++) {
+    (function(quizId) {
+      quizVotesRef(quizId).on('value', function(snap) {
+        var votes = snap.val() || {};
+        var r = { A: 0, B: 0 };
+        Object.values(votes).forEach(function(v) { if (r.hasOwnProperty(v)) r[v]++; });
+        updateQuizBars(quizId, r);
+      });
+    })(q);
+  }
+  // Listen for tool poll results
+  toolVotesRef.on('value', function(snap) {
+    var data = snap.val() || {};
+    var results = {};
+    var voterSet = {};
+    toolPollOrder.forEach(function(name) {
+      var toolData = data[name] || {};
+      results[name] = Object.keys(toolData).length;
+      Object.keys(toolData).forEach(function(vid) { voterSet[vid] = true; });
+    });
+    results._voters = Object.keys(voterSet).length;
+    updateToolPollBars(results);
+  });
+}
+
+// --- Tool Poll ---
+var toolPollOrder = ['ChatGPT','Claude','Copilot','Gemini','Grok','Perplexity','Llama'];
+var toolPollLogos = {ChatGPT:'assets/logo-chatgpt.png',Claude:'assets/logo-claude.png',Copilot:'assets/logo-copilot.png',Gemini:'assets/logo-gemini.png',Grok:'assets/logo-grok.png',Perplexity:'assets/logo-perplexity.png',Llama:'assets/logo-llama.png'};
+
+function buildToolPollBars() {
+  var container = document.getElementById('toolPollBars');
+  if (!container || container.children.length > 0) return;
+  toolPollOrder.forEach(function(name) {
+    var row = document.createElement('div');
+    row.className = 'tool-poll-bar-row';
+    row.id = 'toolBar_' + name;
+    row.innerHTML = '<img class="tool-poll-bar-icon" src="' + toolPollLogos[name] + '" alt="' + name + '">' +
+      '<span class="tool-poll-bar-name">' + name + '</span>' +
+      '<div class="tool-poll-bar-track"><div class="tool-poll-bar-fill" id="toolFill_' + name + '"><span class="tool-poll-bar-pct" id="toolPct_' + name + '"></span></div></div>' +
+      '<span class="tool-poll-bar-count" id="toolCnt_' + name + '">0</span>';
+    container.appendChild(row);
+  });
+}
+
+function updateToolPollBars(results) {
+  buildToolPollBars();
+  var voters = results._voters || 0;
+  toolPollOrder.forEach(function(name) {
+    var cnt = results[name] || 0;
+    var pct = voters > 0 ? Math.round(cnt / voters * 100) : 0;
+    var fill = document.getElementById('toolFill_' + name);
+    var pctEl = document.getElementById('toolPct_' + name);
+    var cntEl = document.getElementById('toolCnt_' + name);
+    if (fill) fill.style.width = (voters > 0 ? Math.max(pct, 2) : 0) + '%';
+    if (pctEl) pctEl.textContent = voters > 0 ? pct + '%' : '';
+    if (cntEl) cntEl.textContent = cnt;
+  });
+  var totalEl = document.getElementById('toolPollTotal');
+  if (totalEl) totalEl.textContent = voters > 0 ? '총 ' + voters + '명 참여' : '투표 대기 중...';
+}
+
+function resetToolPoll() {
+  if (!confirm('AI 도구 투표를 초기화할까요?')) return;
+  toolVotesRef.remove();
+}
+
+// R key = reset current quiz
+document.addEventListener('keydown', function(e) {
+  if (isViewer) return;
+  if (e.key === 'r' || e.key === 'R') {
+    const voteArea = slides[cur]?.querySelector('.quiz-vote-area');
+    if (voteArea) {
+      const qid = voteArea.dataset.quiz;
+      if (qid && confirm('퀴즈 ' + qid + ' 투표를 초기화할까요?')) resetQuiz(qid);
+    }
+  }
+});
+
+// Init voting (presenter only) — Firebase
+(function initVoting() {
+  if (isViewer) return;
+  var initialized = false;
+  db.ref('.info/connected').on('value', function(snap) {
+    if (snap.val() === true && !initialized) {
+      initialized = true;
+      loadSharedQR();
+      connectFirebaseListeners();
+      setActiveQuiz();
+      loadQuestions();
+    } else if (snap.val() !== true) {
+      var titleQR = document.getElementById('titleQR');
+      if (titleQR && !initialized) titleQR.querySelector('p').textContent = '⚠️ Firebase 연결 중...';
+    }
+  });
+})();
+
+// Viewer mode (audience iframe - receives postMessage from parent vote.html)
+if (isViewer) {
+  document.querySelector('.qr-btn').style.display='none';
+  document.querySelector('.nav-controls').style.display='none';
+  cnt.style.display='none';
+  prog.style.display='none';
+  var tq=document.getElementById('titleQR'); if(tq) tq.style.display='none';
+  document.querySelectorAll('.quiz-answer').forEach(function(el){el.style.display='none'});
+  document.querySelectorAll('.quiz-reset-btn').forEach(function(el){el.style.display='none'});
+  document.querySelectorAll('audio').forEach(function(a){a.muted=true});
+  // Listen for postMessage from parent (vote.html) for slide sync
+  window.addEventListener('message', function(e) {
+    if (e.data && e.data.type === 'goToSlide') {
+      go(cur, e.data.slideIndex);
+    }
+  });
+}
+
+// Init
+(function(){
+  let s=0;if(!isViewer)try{const v=sessionStorage.getItem('s');if(v!==null)s=parseInt(v)}catch(e){}
+  slides[s].classList.add('active');cur=s;
+  prog.style.width=((s+1)/total*100)+'%';
+  cnt.textContent=(s+1)+' / '+total;
+  document.body.style.background='#F0FDFA';
+  if(slides[s].id==='llm-typing-slide') setTimeout(startLLMTyping,600);
+})();
+</script>
+</body>
+</html>

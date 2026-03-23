@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>강의 참여</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;font-family:'Noto Sans KR',sans-serif;background:#F0FDFA;color:#1E293B;overflow:hidden}
+
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;gap:1.5rem;transition:opacity .3s}
+.screen.hidden{opacity:0;pointer-events:none}
+
+/* Viewer screen (presentation iframe) */
+#viewerScreen{padding:0}
+#viewerScreen iframe{width:100%;height:100%;border:none;display:block}
+
+/* Vote screen */
+#voteScreen h1{font-size:1.2rem;font-weight:900;text-align:center;line-height:1.5}
+#voteScreen h1 .teal{color:#0D9488}
+
+.choices{display:flex;gap:1.2rem;width:100%;max-width:400px}
+.choice-btn{
+  flex:1;aspect-ratio:1;border-radius:20px;border:4px solid #e2e8f0;
+  background:#fff;font-size:3.5rem;font-weight:900;color:#1E293B;
+  cursor:pointer;transition:all .15s;text-align:center;
+  display:flex;align-items:center;justify-content:center;
+  -webkit-tap-highlight-color:transparent;user-select:none;
+  max-height:200px;
+}
+.choice-btn:active{transform:scale(0.92)}
+.choice-btn.pick-a{border-color:#0D9488;background:#0D9488;color:#fff;transform:scale(1.05)}
+.choice-btn.pick-b{border-color:#F59E0B;background:#F59E0B;color:#fff;transform:scale(1.05)}
+
+/* Done screen */
+#doneScreen .check{font-size:4rem}
+#doneScreen h2{font-size:1.5rem;font-weight:900}
+#doneScreen .my-pick{font-size:1rem;color:#64748b;margin-top:.2rem}
+
+/* Result bars */
+.result-area{width:100%;max-width:360px}
+.bar-row{display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem}
+.bar-label{font-size:1.1rem;font-weight:900;width:1.8rem;text-align:center}
+.bar-track{flex:1;height:32px;background:#e2e8f0;border-radius:10px;overflow:hidden}
+.bar-fill{height:100%;border-radius:10px;transition:width .5s cubic-bezier(.4,0,.2,1);display:flex;align-items:center;justify-content:flex-end;padding-right:8px}
+.bar-fill.a{background:linear-gradient(90deg,#0D9488,#5EEAD4)}
+.bar-fill.b{background:linear-gradient(90deg,#F59E0B,#FCD34D)}
+.bar-pct{font-size:.75rem;font-weight:700;color:#fff;white-space:nowrap}
+.bar-count{font-size:.85rem;font-weight:700;color:#64748b;width:2.5rem;text-align:right}
+.total{font-size:.8rem;color:#94A3B8;text-align:center;margin-top:.3rem}
+
+/* Tool poll screen */
+#toolPollScreen h1{font-size:1.2rem;font-weight:900;text-align:center;line-height:1.5}
+#toolPollScreen h1 .teal{color:#0D9488}
+.tool-poll-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;width:100%;max-width:360px;margin-top:.5rem}
+.tool-poll-btn{
+  display:flex;flex-direction:column;align-items:center;gap:.4rem;
+  padding:.8rem .5rem;border-radius:16px;border:3px solid #e2e8f0;
+  background:#fff;cursor:pointer;transition:all .15s;
+  -webkit-tap-highlight-color:transparent;user-select:none;
+}
+.tool-poll-btn img{width:44px;height:44px;border-radius:10px;object-fit:contain}
+.tool-poll-btn span{font-size:.8rem;font-weight:700;color:#1E293B}
+.tool-poll-btn.selected{border-color:#0D9488;background:#F0FDFA;transform:scale(1.04)}
+.tool-poll-btn.selected span{color:#0D9488}
+.tool-poll-btn:active{transform:scale(0.94)}
+.tool-poll-submit{
+  background:#0D9488;color:#fff;border:none;border-radius:14px;
+  padding:.8rem 2rem;font-size:1rem;font-weight:700;font-family:inherit;
+  cursor:pointer;margin-top:.8rem;transition:all .15s;
+}
+.tool-poll-submit:active{opacity:.7}
+.tool-poll-submit:disabled{opacity:.4}
+.tool-poll-msg{font-size:.85rem;color:#0D9488;font-weight:600;min-height:1.2rem;text-align:center}
+.tool-poll-note{font-size:.75rem;color:#94A3B8;text-align:center}
+
+/* Q&A screen */
+#qaScreen{padding:1.2rem;justify-content:flex-start;padding-top:2.5rem;overflow:hidden}
+#qaScreen h2{font-size:1.3rem;font-weight:900;text-align:center;flex-shrink:0}
+.qa-form{width:100%;max-width:400px;display:flex;gap:.5rem;flex-shrink:0;box-sizing:border-box}
+.qa-input{flex:1;min-width:0;padding:.7rem .9rem;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;font-family:inherit;outline:none;transition:border-color .2s;background:#fff;-webkit-appearance:none}
+.qa-input:focus{border-color:#0D9488}
+.qa-submit{background:#0D9488;color:#fff;border:none;border-radius:12px;padding:.7rem 1.2rem;font-size:.95rem;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;transition:opacity .2s;flex-shrink:0}
+.qa-submit:active{opacity:.7}
+.qa-submit:disabled{opacity:.4}
+.qa-sent{color:#0D9488;font-size:.85rem;font-weight:600;min-height:1.2rem;text-align:center;flex-shrink:0}
+.qa-my-list{width:100%;max-width:400px;flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:.5rem;-webkit-overflow-scrolling:touch}
+.qa-my-item{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:.7rem 1rem;font-size:.9rem;color:#334155;word-break:keep-all;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<!-- 1. Presentation viewer (default - follows presenter) -->
+<div class="screen" id="viewerScreen">
+  <iframe id="presFrame" src="index.html?viewer=1"></iframe>
+</div>
+
+<!-- 2. Vote -->
+<div class="screen hidden" id="voteScreen">
+  <h1 id="quizTitle"></h1>
+  <div class="choices">
+    <button class="choice-btn" id="btnA" onclick="vote('A')">A</button>
+    <button class="choice-btn" id="btnB" onclick="vote('B')">B</button>
+  </div>
+</div>
+
+<!-- 3. Done -->
+<div class="screen hidden" id="doneScreen">
+  <div class="check">✅</div>
+  <h2>투표 완료!</h2>
+  <p class="my-pick" id="myPick"></p>
+  <div class="result-area">
+    <div class="bar-row">
+      <span class="bar-label" style="color:#0D9488">A</span>
+      <div class="bar-track"><div class="bar-fill a" id="barA"><span class="bar-pct" id="pctA"></span></div></div>
+      <span class="bar-count" id="cntA">0</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label" style="color:#F59E0B">B</span>
+      <div class="bar-track"><div class="bar-fill b" id="barB"><span class="bar-pct" id="pctB"></span></div></div>
+      <span class="bar-count" id="cntB">0</span>
+    </div>
+    <p class="total" id="totalVotes"></p>
+  </div>
+</div>
+
+<!-- 4. Tool Poll -->
+<div class="screen hidden" id="toolPollScreen">
+  <h1>사용해본 <span class="teal">AI 도구</span>를 골라주세요</h1>
+  <p class="tool-poll-note">여러 개 선택 가능</p>
+  <div class="tool-poll-grid" id="toolPollGrid"></div>
+  <button class="tool-poll-submit" id="toolPollSubmit" onclick="submitToolPoll()">제출하기</button>
+  <p class="tool-poll-msg" id="toolPollMsg"></p>
+</div>
+
+<!-- 5. Q&A input -->
+<div class="screen hidden" id="qaScreen">
+  <h2>질문을 작성해 주세요</h2>
+  <div class="qa-form">
+    <input class="qa-input" id="qaInput" type="text" placeholder="궁금한 점을 입력하세요" maxlength="200" enterkeyhint="send">
+    <button class="qa-submit" id="qaSubmit" onclick="submitQuestion()">전송</button>
+  </div>
+  <p class="qa-sent" id="qaSent"></p>
+  <div class="qa-my-list" id="qaMyList"></div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
+
+<script>
+const quizInfo = {
+  1: '어느 쪽이 <span class="teal">AI가 만든</span> 이미지일까요?',
+  2: '사람의 <span class="teal">감정이 담긴</span> 목소리는?',
+  3: '어느 쪽이 <span class="teal">사람이 쓴</span> 소설일까요?'
+};
+
+let voterId = localStorage.getItem('voterId');
+if (!voterId) {
+  voterId = 'v_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+  localStorage.setItem('voterId', voterId);
+}
+
+const myVotes = JSON.parse(localStorage.getItem('myVotes') || '{}');
+let currentQuiz = 0;
+let currentVotesListener = null;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+
+function onActiveQuiz(quizId) {
+  currentQuiz = quizId;
+  // Detach previous votes listener
+  if (currentVotesListener) { currentVotesListener(); currentVotesListener = null; }
+
+  if (quizId === 'tools') {
+    onToolPoll();
+    return;
+  }
+  if (quizId === 'qa') {
+    showScreen('qaScreen');
+    document.getElementById('qaInput').focus();
+    return;
+  }
+  if (quizId === 0 || quizId === null) {
+    // Use postMessage to sync iframe slide instead of separate Firebase connection
+    showScreen('viewerScreen');
+    return;
+  }
+  // Already voted for this quiz?
+  if (myVotes[quizId]) {
+    showDone(myVotes[quizId]);
+    return;
+  }
+  document.getElementById('quizTitle').innerHTML = quizInfo[quizId] || '퀴즈 ' + quizId;
+  document.getElementById('btnA').className = 'choice-btn';
+  document.getElementById('btnB').className = 'choice-btn';
+  showScreen('voteScreen');
+}
+
+function showDone(choice) {
+  document.getElementById('myPick').textContent = choice + '에 투표했습니다';
+  showScreen('doneScreen');
+  // Listen for realtime vote results
+  if (currentVotesListener) { currentVotesListener(); currentVotesListener = null; }
+  var ref = quizVotesRef(currentQuiz);
+  var handler = ref.on('value', function(snap) {
+    var votes = snap.val() || {};
+    var r = { A: 0, B: 0 };
+    Object.values(votes).forEach(function(v) { if (r.hasOwnProperty(v)) r[v]++; });
+    updateBars(r);
+  });
+  currentVotesListener = function() { ref.off('value', handler); };
+}
+
+function updateBars(r) {
+  var t = r.A + r.B;
+  var pA = t > 0 ? Math.round(r.A/t*100) : 0;
+  var pB = t > 0 ? Math.round(r.B/t*100) : 0;
+  document.getElementById('barA').style.width = (t > 0 ? Math.max(pA,4) : 0) + '%';
+  document.getElementById('barB').style.width = (t > 0 ? Math.max(pB,4) : 0) + '%';
+  document.getElementById('pctA').textContent = t > 0 ? pA+'%' : '';
+  document.getElementById('pctB').textContent = t > 0 ? pB+'%' : '';
+  document.getElementById('cntA').textContent = r.A;
+  document.getElementById('cntB').textContent = r.B;
+  document.getElementById('totalVotes').textContent = t > 0 ? '총 '+t+'명 참여' : '';
+}
+
+function vote(choice) {
+  if (myVotes[currentQuiz]) return;
+  document.getElementById('btnA').className = 'choice-btn' + (choice==='A' ? ' pick-a' : '');
+  document.getElementById('btnB').className = 'choice-btn' + (choice==='B' ? ' pick-b' : '');
+
+  myVotes[currentQuiz] = choice;
+  localStorage.setItem('myVotes', JSON.stringify(myVotes));
+
+  // Write vote to Firebase
+  quizVotesRef(currentQuiz).child(voterId).set(choice);
+
+  setTimeout(function() { showDone(choice); }, 400);
+}
+
+// --- Q&A ---
+function submitQuestion() {
+  var input = document.getElementById('qaInput');
+  var text = input.value.trim();
+  if (!text) return;
+
+  var btn = document.getElementById('qaSubmit');
+  btn.disabled = true;
+
+  questionsRef.push({
+    text: text.slice(0, 200),
+    voterId: voterId,
+    createdAt: firebase.database.ServerValue.TIMESTAMP
+  }).then(function() {
+    var list = document.getElementById('qaMyList');
+    var item = document.createElement('div');
+    item.className = 'qa-my-item';
+    item.textContent = text;
+    list.appendChild(item);
+    list.scrollTop = list.scrollHeight;
+
+    input.value = '';
+    document.getElementById('qaSent').textContent = '✓ 전송되었습니다';
+    setTimeout(function() { document.getElementById('qaSent').textContent = ''; }, 2000);
+  }).catch(function() {
+    document.getElementById('qaSent').textContent = '전송 실패';
+  }).finally(function() {
+    btn.disabled = false;
+    input.focus();
+  });
+}
+
+// Enter key to submit
+document.getElementById('qaInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') { e.preventDefault(); submitQuestion(); }
+});
+
+// --- Tool Poll ---
+var toolList = [
+  { name: 'ChatGPT', logo: 'assets/logo-chatgpt.png' },
+  { name: 'Claude', logo: 'assets/logo-claude.png' },
+  { name: 'Copilot', logo: 'assets/logo-copilot.png' },
+  { name: 'Gemini', logo: 'assets/logo-gemini.png' },
+  { name: 'Grok', logo: 'assets/logo-grok.png' },
+  { name: 'Perplexity', logo: 'assets/logo-perplexity.png' },
+  { name: 'Llama', logo: 'assets/logo-llama.png' }
+];
+var selectedTools = JSON.parse(localStorage.getItem('selectedTools') || '[]');
+var toolPollSubmitted = localStorage.getItem('toolPollSubmitted') === '1';
+
+(function buildToolGrid() {
+  var grid = document.getElementById('toolPollGrid');
+  toolList.forEach(function(t) {
+    var btn = document.createElement('div');
+    btn.className = 'tool-poll-btn' + (selectedTools.includes(t.name) ? ' selected' : '');
+    btn.dataset.tool = t.name;
+    btn.innerHTML = '<img src="' + t.logo + '" alt="' + t.name + '"><span>' + t.name + '</span>';
+    btn.onclick = function() {
+      btn.classList.toggle('selected');
+      if (btn.classList.contains('selected')) {
+        if (!selectedTools.includes(t.name)) selectedTools.push(t.name);
+      } else {
+        selectedTools = selectedTools.filter(function(x) { return x !== t.name; });
+      }
+      localStorage.setItem('selectedTools', JSON.stringify(selectedTools));
+    };
+    grid.appendChild(btn);
+  });
+})();
+
+function submitToolPoll() {
+  var btn = document.getElementById('toolPollSubmit');
+  btn.disabled = true;
+  // Write each selected tool under voter's key
+  var updates = {};
+  toolList.forEach(function(t) {
+    updates[t.name + '/' + voterId] = selectedTools.includes(t.name) ? true : null;
+  });
+  toolVotesRef.update(updates).then(function() {
+    toolPollSubmitted = true;
+    localStorage.setItem('toolPollSubmitted', '1');
+    document.getElementById('toolPollMsg').textContent = '✓ 제출 완료! 다시 선택하면 업데이트됩니다.';
+    setTimeout(function() { document.getElementById('toolPollMsg').textContent = ''; }, 3000);
+  }).catch(function() {
+    document.getElementById('toolPollMsg').textContent = '전송 실패';
+  }).finally(function() {
+    btn.disabled = false;
+    btn.textContent = toolPollSubmitted ? '수정하기' : '제출하기';
+  });
+}
+
+function onToolPoll() {
+  var btn = document.getElementById('toolPollSubmit');
+  btn.textContent = toolPollSubmitted ? '수정하기' : '제출하기';
+  showScreen('toolPollScreen');
+}
+
+// --- Firebase Listeners ---
+
+// Listen for active quiz changes
+activeQuizRef.on('value', function(snap) {
+  var val = snap.val();
+  onActiveQuiz(val === null ? 0 : val);
+});
+
+// Listen for vote resets (when votes for current quiz become null/empty)
+votesRef.on('child_removed', function(snap) {
+  var removedQuizId = parseInt(snap.key);
+  if (removedQuizId === currentQuiz) {
+    delete myVotes[removedQuizId];
+    localStorage.setItem('myVotes', JSON.stringify(myVotes));
+    onActiveQuiz(currentQuiz);
+  }
+});
+
+// Listen for tool poll reset
+toolVotesRef.on('value', function(snap) {
+  if (snap.val() === null && toolPollSubmitted) {
+    selectedTools = [];
+    toolPollSubmitted = false;
+    localStorage.setItem('selectedTools', '[]');
+    localStorage.removeItem('toolPollSubmitted');
+    document.querySelectorAll('.tool-poll-btn').forEach(function(b) { b.classList.remove('selected'); });
+    var btn = document.getElementById('toolPollSubmit');
+    if (btn) btn.textContent = '제출하기';
+  }
+});
+
+// Sync iframe slide via postMessage from presenter's currentSlide
+currentSlideRef.on('value', function(snap) {
+  var slideIndex = snap.val();
+  if (slideIndex !== null) {
+    var frame = document.getElementById('presFrame');
+    if (frame && frame.contentWindow) {
+      frame.contentWindow.postMessage({ type: 'goToSlide', slideIndex: slideIndex }, '*');
+    }
+  }
+});
+</script>
+</body>
+</html>

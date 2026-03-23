@@ -1,0 +1,16 @@
+{
+  "name": "presentation-quiz",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Presentation quiz system with Firebase Realtime DB (GitHub Pages deployable)",
+  "scripts": {
+    "start": "npx http-server . -p 3000 -c-1",
+    "local": "node server.local.js"
+  },
+  "devDependencies": {},
+  "optionalDependencies": {
+    "better-sqlite3": "^11.0.0",
+    "express": "^4.21.0",
+    "qrcode": "^1.5.4"
+  }
+}

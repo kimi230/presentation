@@ -1,0 +1,8 @@
+node_modules/
+votes.db
+votes.db-shm
+votes.db-wal
+*.pptx
+*.pdf
+.DS_Store
+~$*
