@@ -453,13 +453,16 @@ p,li { font-size:clamp(.85rem,1.4vw,1.1rem); line-height:1.7; }
   .compare-col h4 { font-size:.92rem; margin-bottom:.5rem; }
   .compare-col ul li { font-size:.82rem; padding:.25rem 0; }
 
-  /* Slide 15 (features) - center on mobile */
-  .slide:not(.center) .features { justify-items:center; }
-  .slide:not(.center):has(.features) { align-items:center; text-align:center; }
+  /* Slide 15 - center on mobile */
+  #prompt-slide { align-items:center; text-align:center; }
+  #prompt-slide .features { justify-items:center; }
+  #prompt-slide .logo-row { justify-content:center; }
 
-  /* Slides 17,18 (comm) - center on mobile */
-  .slide:has(.comm-row) { align-items:center; text-align:center; }
-  .slide:has(.comm-row) .mt-2 { width:100%; }
+  /* Slides 17, 18 - center on mobile */
+  #comm-slide, #newbie-slide { align-items:center; text-align:center; }
+  #comm-slide .logo-row, #newbie-slide .logo-row { justify-content:center; }
+  #comm-slide .mt-2, #newbie-slide .mt-2 { width:100%; }
+  #comm-slide div[style*="grid-template-columns"], #newbie-slide div[style*="grid-template-columns"] { display:flex !important; flex-direction:column !important; gap:.3rem !important; }
   .comm-row { grid-template-columns:1fr; gap:.4rem; margin-bottom:.5rem; }
   .comm-cell { padding:.6rem .8rem; font-size:.78rem; border-radius:8px; line-height:1.4; text-align:center; }
 
@@ -1016,7 +1019,7 @@ response = client.models.<span class="fn">generate_content</span>(
 <section class="slide img-slide"><img src="assets/slide-contrast.jpeg" alt="대비"></section>
 
 <!-- ========== 13. AI에게 일 시키기 (light) ========== -->
-<section class="slide light">
+<section class="slide light" id="prompt-slide">
   <div class="logo-row a d1"><img src="assets/icon-ai.png" class="icon-img" alt="ai"></div>
   <h2 class="a d1">AI에게 일을 잘 시키려면?</h2>
   <p class="a d2 teal bold">사람에게 작업지시를 내릴 때처럼</p>
@@ -1046,7 +1049,7 @@ response = client.models.<span class="fn">generate_content</span>(
 </section>
 
 <!-- ========== 15. 소통의 문제 (dark) ========== -->
-<section class="slide light">
+<section class="slide light" id="comm-slide">
   <div class="logo-row a d1"><img src="assets/icon-construction.png" class="icon-img" alt=""></div>
   <h2 class="a d1">현장에서 겪는 소통의 문제</h2>
   <p class="a d2" style="color:var(--text-sub)">작업자가 문제가 아니라, 지시하는 관리자의 문제. <strong class="bold">AI도 마찬가지입니다.</strong></p>
@@ -1064,7 +1067,7 @@ response = client.models.<span class="fn">generate_content</span>(
 
 
 <!-- ========== AI는 똑똑한 신입사원 ========== -->
-<section class="slide light">
+<section class="slide light" id="newbie-slide">
   <div class="logo-row a d1"><img src="assets/icon-construction.png" class="icon-img" alt=""></div>
   <h2 class="a d1">AI(LLM)는 기계가 아니라,<br><span class="teal">똑똑한 신입사원</span>입니다</h2>
   <p class="a d2" style="color:var(--text-sub)">모든 매뉴얼을 외웠지만, 현장 경험은 없는 신입. <strong class="bold">어떻게 시키느냐가 결과를 결정합니다.</strong></p>
